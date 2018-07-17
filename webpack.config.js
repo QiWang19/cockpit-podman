@@ -15,7 +15,7 @@ const builddir = (process.env.SRCDIR || __dirname);
 const distdir = builddir + path.sep + "dist";
 const section = process.env.ONLYDIR || null;
 const nodedir = path.resolve((process.env.SRCDIR || __dirname), "node_modules");
-
+const libdir = path.resolve(srcdir, path.sep + "lib");
 /* A standard nodejs and webpack pattern */
 var production = process.env.NODE_ENV === 'production';
 
@@ -114,7 +114,7 @@ module.exports = {
     devtool: "source-map",
     resolve: {
         alias: {
-            "react$": path.resolve(nodedir, "react-lite/dist/react-lite.js")
+            // "react$": path.resolve(nodedir, "react-lite/dist/react-lite.js")
         }
     },
     module: {
@@ -156,7 +156,24 @@ module.exports = {
                 exclude: /node_modules/,
                 loader: extract.extract('css-loader!sass-loader'),
                 test: /\.scss$/
-            }
+            },
+            {
+                test: /\.js$/,
+                exclude: /\/node_modules\/.*\//, // exclude external dependencies
+                loader: 'strict-loader' // Adds "use strict"
+            },
+            {
+                test: /\.jsx$/,
+                loader: "babel-loader"
+            },
+            {
+                test: /\.css$/,
+                loader: extract.extract("css-loader?minimize=&root=" + libdir)
+            },
+            {
+                test: /\.less$/,
+                loader: extract.extract("css-loader?sourceMap&minimize=!less-loader?sourceMap&compress=false")
+            },
         ]
     },
     plugins: plugins
