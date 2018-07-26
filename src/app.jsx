@@ -21,17 +21,17 @@
 import cockpit from 'cockpit';
 import React from 'react';
 import './app.scss';
-
+import ContainerHeader from './ContainerHeader.js'
+import Containers from './Containers.js';
+import Images from './Images.js';
 /***
  * varlink protocol helpers
  * https://github.com/varlink/varlink.github.io/wiki
  */
-
 const encoder = cockpit.utf8_encoder();
 const decoder = cockpit.utf8_decoder(true);
 
 const PODMAN = { unix: "/run/podman/io.projectatomic.podman" };
-
 /**
  * Do a varlink call on an existing channel. You must *never* call this
  * multiple times in parallel on the same channel! Serialize the calls or use
@@ -42,36 +42,36 @@ const PODMAN = { unix: "/run/podman/io.projectatomic.podman" };
  */
 function varlinkCallChannel(channel, method, parameters) {
     return new Promise((resolve, reject) => {
-        function on_close(event, options) {
-            reject(options.problem || options);
-        }
+	function on_close(event, options) {
+		reject(options.problem || options);
+	}
 
-        function on_message(event, data) {
-            channel.removeEventListener("message", on_message);
-            channel.removeEventListener("close", on_close);
+	function on_message(event, data) {
+		channel.removeEventListener("message", on_message);
+		channel.removeEventListener("close", on_close);
 
-            // FIXME: support answer in multiple chunks until null byte
-            if (data[data.length - 1] != 0) {
-                reject("protocol error: expecting terminating 0");
-                return;
-            }
+		// FIXME: support answer in multiple chunks until null byte
+		if (data[data.length - 1] != 0) {
+		reject("protocol error: expecting terminating 0");
+		return;
+		}
 
-            var reply = decoder.decode(data.slice(0, -1));
-            var json = JSON.parse(reply);
-            if (json.error)
-                reject(json.error)
-            else if (json.parameters) {
-                // debugging
-                console.log("varlinkCall", method, "→", JSON.stringify(json.parameters));
-                resolve(json.parameters)
-            } else
-                reject("protocol error: reply has neither parameters nor error: " + reply);
-        }
+		var reply = decoder.decode(data.slice(0, -1));
+		var json = JSON.parse(reply);
+		if (json.error)
+		reject(json.error)
+		else if (json.parameters) {
+		// debugging
+		// console.log("varlinkCall", method, "→", JSON.stringify(json.parameters));
+		resolve(json.parameters)
+		} else
+		reject("protocol error: reply has neither parameters nor error: " + reply);
+	}
 
-        channel.addEventListener("close", on_close);
-        channel.addEventListener("message", on_message);
-        channel.send(encoder.encode(JSON.stringify({ method, parameters: (parameters || {}) })));
-        channel.send([0]); // message separator
+	channel.addEventListener("close", on_close);
+	channel.addEventListener("message", on_message);
+	channel.send(encoder.encode(JSON.stringify({ method, parameters: (parameters || {}) })));
+	channel.send([0]); // message separator
     });
 }
 
@@ -86,45 +86,121 @@ function varlinkCall(channelOptions, method, parameters) {
     return response;
 }
 
-export class Application extends React.Component {
+class Application extends React.Component {
     constructor(props) {
-        super(props);
+		super(props);
 
-        this.state = { version: { version: "unknown" }, images: [], containers: [] };
+		this.state = {
+			version: { version: "unknown" },
+			images: [],
+			containers: [],
+			imagesMeta: [],
+			containersMeta: [],
+			containersStats:[],
+			onlyShowRunning: true,
+			dropDownValue: 'Everything',
+		};
+		this.onChange = this.onChange.bind(this);
+	}
 
-        varlinkCall(PODMAN, "io.projectatomic.podman.GetVersion")
-            .then(reply => this.setState({ version: reply.version }))
-            .catch(ex => console.error("Failed to do GetVersion call:", JSON.stringify(ex)));
+	onChange(value) {
+		this.setState({
+			onlyShowRunning: value == "all" ? false : true
+		})
+	}
 
-        varlinkCall(PODMAN, "io.projectatomic.podman.ListImages")
-            .then(reply => this.setState({ images: reply.images }))
-            .catch(ex => console.error("Failed to do ListImages call:", JSON.stringify(ex)));
+    componentDidMount() {
+		this._asyncRequestVersion = varlinkCall(PODMAN, "io.projectatomic.podman.GetVersion")
+			.then(reply => {
+				this._asyncRequestVersion = null;
+				this.setState({ version: reply.version });
+			})
+			.catch(ex => console.error("Failed to do GetVersion call:", JSON.stringify(ex)));
 
-        varlinkCall(PODMAN, "io.projectatomic.podman.ListContainers")
-            .then(reply => this.setState({ containers: reply.containers || [] }))
-            .catch(ex => console.error("Failed to do ListContainers call:", JSON.stringify(ex), ex.toString()));
+		this._asyncRequestImages = varlinkCall(PODMAN, "io.projectatomic.podman.ListImages")
+			.then(reply => {
+				this._asyncRequestImages = null;
+				this.setState({ imagesMeta: reply.images });
+				this.state.imagesMeta.map((img)=>{
+					varlinkCall(PODMAN, "io.projectatomic.podman.InspectImage", JSON.parse('{"name":"' + img.id + '"}'))
+						.then(reply => {
+							const temp_imgs = this.state.images;
+							temp_imgs.push(JSON.parse(reply.image));
+							this.setState({images: temp_imgs});
+						})
+						.catch(ex => console.error("Failed to do InspectImage call:", ex, JSON.stringify(ex)));
+				})
+			})
+			.catch(ex => console.error("Failed to do ListImages call:", ex, JSON.stringify(ex)));
+
+		this._asyncRequestContainers = varlinkCall(PODMAN, "io.projectatomic.podman.ListContainers")
+			.then(reply => {
+				this._asyncRequestContainers = null;
+				this.setState({containersMeta: reply.containers || []});
+				// this.setState({ containers: reply.containers || [] });
+				this.state.containersMeta.map((container) => {
+					varlinkCall(PODMAN, "io.projectatomic.podman.InspectContainer", JSON.parse('{"name":"' + container.id + '"}'))
+						.then(reply => {
+							const temp_containers = this.state.containers;
+							temp_containers.push(JSON.parse(reply.container));
+							this.setState({containers: temp_containers});
+						})
+						.catch(ex => console.error("Failed to do InspectImage call:", ex, JSON.stringify(ex)));
+				});
+				this.state.containersMeta.map((container) => {
+					varlinkCall(PODMAN, "io.projectatomic.podman.GetContainerStats", JSON.parse('{"name":"' + container.id + '"}'))
+						.then(reply => {
+							const temp_container_stats = this.state.containersStats;
+							if (reply.container) {
+								temp_container_stats[container.id] = reply.container;
+							}
+							this.setState({containersStats: temp_container_stats});
+						})
+						.catch(ex => console.error("Failed to do GetContainerStats call:", ex, JSON.stringify(ex)));
+				});
+			})
+			.catch(ex => console.error("Failed to do ListContainers call:", JSON.stringify(ex), ex.toString()));
+		}
+
+    componentWillUnmount() {
+		if (this._asyncRequestVersion) {
+			this._asyncRequestVersion.cancel();
+		}
+		if (this._asyncRequestImages) {
+			this._asyncRequestImages.cancel();
+		}
+		if (this._asyncRequestContainers) {
+			this._asyncRequestContainers.cancel();
+		}
     }
 
     render() {
-        let images = this.state.images.map(image => <li>{ image.repoTags.join(", ") } (created: {image.created})</li>);
-        let containers = this.state.containers.map(container => <li>{container.names} ({container.image}): {container.command.join(" ")}</li> );
+		let imageList;
+		let containerList;
+		imageList = <Images images={this.state.images}></Images>;
+		containerList=
+			<Containers
+				containers={this.state.containers}
+				containersStats={this.state.containersStats}
+				onlyShowRunning={this.state.onlyShowRunning}
+			></Containers>
 
-        return (
-            <div className="container-fluid">
-                <h2>Podman Varlink Demo</h2>
-                <div>
-                    <span id="version">podman version: {this.state.version.version}</span>
-                </div>
-
-                <h3>Images</h3>
-                <ul id="images">
-                    {images}
-                </ul>
-                <h3>Containers</h3>
-                <ul id="containers">
-                    {containers}
-                </ul>
-            </div>
-        );
+		return (
+			<div>
+				<div className="content-filter">
+					<ContainerHeader
+						onlyShowRunning={this.state.onlyShowRunning}
+						onChange={this.onChange}
+					></ContainerHeader>
+				</div>
+				<div className="container-fluid">
+					{/* List everything */}
+					{containerList}
+					{imageList}
+				</div>
+			</div>
+		);
     }
 }
+
+export default Application;
