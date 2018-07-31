@@ -81,8 +81,8 @@ class Images extends React.Component {
 			selectImageDeleteModal: false,
 		});
 		utils.varlinkCall(utils.PODMAN, "io.projectatomic.podman.RemoveImage", JSON.parse('{"name":"' + image.Id + '"}'))
-			.then(reply => {
-				console.log(reply.image);
+			.then((reply) => {
+				// console.log(reply.image);
 			})
 			.catch(ex => {
 				// console.error("Failed to do RemoveImage call:", ex, JSON.stringify(ex));
@@ -90,7 +90,9 @@ class Images extends React.Component {
 				this.setState({
 					setImageRemoveErrorModal: true,
 				});
-			});
+			})
+
+
 		// return undefined;
 	}
 

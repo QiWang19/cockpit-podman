@@ -60,6 +60,12 @@ class Containers extends React.Component {
 
 
 	renderRow(containersStats, container) {
+		const containerStats = containersStats[container.ID] ? containersStats[container.ID] : undefined;
+		// if (containersStats[container.ID]) {
+		// 	console.log(containersStats[container.ID].mem_usage);
+
+		// }
+		// console.log(container.HostConfig.CpuPercent);
 		const isRunning = !!container.State.Running;
 		//TODO: check container.Image == container.ImageID
 		const image = container.ImageName;
@@ -70,9 +76,10 @@ class Containers extends React.Component {
 			image,
 			container.Config.Entrypoint === "" ? container.Config.Cmd.join(" ") : container.Config.Cmd.join(""),
 			// TODO: CpuUsage
-			"",
+			container.State.Running ? utils.format_cpu_percent(container.HostConfig.CpuPercent) : "",
 			// TODO: MemoryUsage, MemoryLimit
-			"",
+			// "",
+			containerStats ? utils.format_memory_and_limit(containerStats.mem_usage, containerStats.mem_limit) : "",
 			state,
 
 		];
@@ -84,9 +91,9 @@ class Containers extends React.Component {
 
 		let startStopActions = [];
 		if (isRunning)
-			startStopActions.push({ label: _("Stop"), onActivate: () => stopContainer(container)});
+			startStopActions.push({ label: _("Stop"), onActivate: () => this.stopContainer(container)});
 		else
-			startStopActions.push({ label: _("Start"), onActivate: () => startContainer(container)});
+			startStopActions.push({ label: _("Start"), onActivate: () => this.startContainer(container)});
 
 		startStopActions.push({
 			label: _("Restart"),
@@ -114,7 +121,7 @@ class Containers extends React.Component {
 					key={container.Id}
 					columns={columns}
 					tabRenderers={tabs}
-					navigateToItem={() => navigateToContainer(container)}
+					navigateToItem={() => this.navigateToContainer(container)}
 					listingActions={actions}
 				/>;
 	}

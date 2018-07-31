@@ -47,7 +47,8 @@ function varlinkCallChannel(channel, method, parameters) {
 	channel.addEventListener("message", on_message);
 	channel.send(encoder.encode(JSON.stringify({ method, parameters: (parameters || {}) })));
 	channel.send([0]); // message separator
-    });
+	})
+	// .catch(err=>{console.log(err)});
 }
 
 /**
@@ -66,4 +67,36 @@ export function truncate_id(id) {
 		return "";
 	}
 	return id.substr(0, 12);
+}
+
+export function format_cpu_percent(cpuPercent) {
+	if (cpuPercent === undefined || isNaN(cpuPercent)) {
+		return "";
+	}
+	return cpuPercent + "%";
+}
+
+export function format_memory_and_limit(usage, limit) {
+	if (usage === undefined || isNaN(usage))
+		return "";
+
+	var mtext = "";
+	var units = 1024;
+	var parts;
+	if (limit) {
+		parts = cockpit.format_bytes(limit, units, true);
+		mtext = " / " + parts.join(" ");
+		units = parts[1];
+	}
+
+	if (usage) {
+		parts = cockpit.format_bytes(usage, units, true);
+		if (mtext)
+			return parts[0] + mtext;
+		else
+			return parts.join(" ");
+	} else {
+		// return "?" + mtext;
+		return "";
+	}
 }
