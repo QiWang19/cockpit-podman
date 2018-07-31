@@ -1,7 +1,7 @@
 import React from 'react';
 import cockpit from 'cockpit';
 import Select from '../lib/cockpit-components-select.jsx';
-
+require("./docker.css");
 const _ = cockpit.gettext;cockpit.gett
 
 class ContainerHeader extends React.Component {
