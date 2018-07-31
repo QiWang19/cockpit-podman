@@ -89,7 +89,6 @@ function varlinkCall(channelOptions, method, parameters) {
 class Application extends React.Component {
     constructor(props) {
 		super(props);
-
 		this.state = {
 			version: { version: "unknown" },
 			images: [],
@@ -101,12 +100,20 @@ class Application extends React.Component {
 			dropDownValue: 'Everything',
 		};
 		this.onChange = this.onChange.bind(this);
+		this.updateContainers = this.updateContainers.bind(this);
 	}
 
 	onChange(value) {
 		this.setState({
 			onlyShowRunning: value == "all" ? false : true
 		})
+	}
+
+	updateContainers(newContainers) {
+		this.setState({
+			containers: newContainers
+		});
+		// console.log(newContainers);
 	}
 
     componentDidMount() {
@@ -183,6 +190,7 @@ class Application extends React.Component {
 				containers={this.state.containers}
 				containersStats={this.state.containersStats}
 				onlyShowRunning={this.state.onlyShowRunning}
+				updateContainers={this.updateContainers}
 			></Containers>
 
 		return (

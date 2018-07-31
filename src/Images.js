@@ -4,6 +4,9 @@ import Listing from '../lib/cockpit-components-listing.jsx';
 import ImageDetails from './ImageDetails.js';
 import ContainersRunImageModal from './ContainersRunImageModal.js';
 import ImageSecurity from './ImageSecurity.js';
+import ModalExample from './ImageDeleteModal.js';
+import ImageRemoveErrorModal from './ImageRemoveErrorModal.js';
+import * as utils from './util.js';
 
 const moment = require('moment');
 const atomic = require('./atomic');
@@ -15,14 +18,22 @@ class Images extends React.Component {
 		this.state = {
 			imageDetail: undefined,
 			setRunContainer: false,
-			vulnerableInfos: {}
+			vulnerableInfos: {},
+			selectImageDeleteModal: false,
+			setImageRemoveErrorModal: false,
+			imageWillDelete: undefined,
 		};
+
 		this.vulnerableInfoChanged = this.vulnerableInfoChanged.bind(this);
 		this.renderRow = this.renderRow.bind(this);
 		this.navigateToImage = this.navigateToImage.bind(this);
 		this.handleSearchImageClick = this.handleSearchImageClick.bind(this);
 		this.showRunImageDialog = this.showRunImageDialog.bind(this);
 		this.handleCancelRunImage = this.handleCancelRunImage.bind(this);
+		this.deleteImage = this.deleteImage.bind(this);
+		this.handleCancelImageDeleteModal = this.handleCancelImageDeleteModal.bind(this);
+		this.handleRemoveImage = this.handleRemoveImage.bind(this);
+		this.handleCancelImageRemoveError = this.handleCancelImageRemoveError.bind(this);
 	}
 
 	vulnerableInfoChanged(event, infos) {
@@ -46,6 +57,41 @@ class Images extends React.Component {
 		this.setState({
 			setRunContainer: true
 		});
+	}
+
+	deleteImage(image, event) {
+		// console.log(image.RepoTags[0]);
+		this.setState((prevState) => ({
+			imageWillDelete: image,
+			selectImageDeleteModal: !prevState.selectImageDeleteModal,
+		}));
+		// return undefined;
+	}
+
+	handleCancelImageDeleteModal() {
+		this.setState((prevState) => ({
+			selectImageDeleteModal: !prevState.selectImageDeleteModal
+		}));
+	}
+
+	handleRemoveImage() {
+		// console.log(this.state.imageWillDelete.Id);
+		const image = this.state.imageWillDelete;
+		this.setState({
+			selectImageDeleteModal: false,
+		});
+		utils.varlinkCall(utils.PODMAN, "io.projectatomic.podman.RemoveImage", JSON.parse('{"name":"' + image.Id + '"}'))
+			.then(reply => {
+				console.log(reply.image);
+			})
+			.catch(ex => {
+				// console.error("Failed to do RemoveImage call:", ex, JSON.stringify(ex));
+				console.log(ex);
+				this.setState({
+					setImageRemoveErrorModal: true,
+				});
+			});
+		// return undefined;
 	}
 
 	renderRow(image) {
@@ -103,7 +149,7 @@ class Images extends React.Component {
 			<button
 				className="btn btn-danger btn-delete pficon pficon-delete"
 				// TODO: deleteImage
-				onClick={undefined}
+				onClick={(event) => this.deleteImage(image)}
 			/>
 		];
 		return <Listing.ListingRow
@@ -124,7 +170,13 @@ class Images extends React.Component {
 			this.setState(()=>({
 				setRunContainer: false
 			}));
-    }
+	}
+
+	handleCancelImageRemoveError() {
+		this.setState({
+			setImageRemoveErrorModal: false
+		});
+	}
 
     render() {
 			const columnTitles = [ _("Name"), _(''), _("Created"), _("Size"), _('') ];
@@ -137,6 +189,19 @@ class Images extends React.Component {
 			//TODO: filter images via filterText
 			let filtered = this.props.images;
 			let imageRows = filtered.map(this.renderRow);
+			const imageDeleteModal =
+				<ModalExample
+					selectImageDeleteModal={this.state.selectImageDeleteModal}
+					imageWillDelete={this.state.imageWillDelete}
+					handleCancelImageDeleteModal={this.handleCancelImageDeleteModal}
+					handleRemoveImage={this.handleRemoveImage}
+				></ModalExample>;
+			const imageRemoveErrorModal =
+				<ImageRemoveErrorModal
+					setImageRemoveErrorModal={this.state.setImageRemoveErrorModal}
+					handleCancelImageRemoveError={this.handleCancelImageRemoveError}
+				></ImageRemoveErrorModal>
+
 			return(
 				<div className="container-fluid" >
 					<div>
@@ -153,6 +218,13 @@ class Images extends React.Component {
 							show={this.state.setRunContainer}
 							handleCancelRunImage={this.handleCancelRunImage}
 						></ContainersRunImageModal>
+						{/* <ModalExample
+							selectImageDeleteModal={this.state.selectImageDeleteModal}
+							handleCancelImageDeleteModal={this.handleCancelImageDeleteModal}
+							imageWillDelete={this.state.imageWillDelete}
+						></ModalExample> */}
+						{imageDeleteModal}
+						{imageRemoveErrorModal}
 				</div>
 			);
     }
