@@ -101,6 +101,7 @@ class Application extends React.Component {
 		};
 		this.onChange = this.onChange.bind(this);
 		this.updateContainers = this.updateContainers.bind(this);
+		this.updateImages = this.updateImages.bind(this);
 	}
 
 	onChange(value) {
@@ -114,6 +115,12 @@ class Application extends React.Component {
 			containers: newContainers
 		});
 		// console.log(newContainers);
+	}
+
+	updateImages(newImages) {
+		this.setState({
+			images: newImages
+		});
 	}
 
     componentDidMount() {
@@ -184,7 +191,11 @@ class Application extends React.Component {
     render() {
 		let imageList;
 		let containerList;
-		imageList = <Images images={this.state.images}></Images>;
+		imageList =
+			<Images
+				images={this.state.images}
+				updateImages={this.updateImages}
+			></Images>;
 		containerList=
 			<Containers
 				containers={this.state.containers}

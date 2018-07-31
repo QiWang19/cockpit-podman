@@ -75,10 +75,7 @@ class Containers extends React.Component {
 			{ name: container.Name, header: true },
 			image,
 			container.Config.Entrypoint === "" ? container.Config.Cmd.join(" ") : container.Config.Cmd.join(""),
-			// TODO: CpuUsage
 			container.State.Running ? utils.format_cpu_percent(container.HostConfig.CpuPercent) : "",
-			// TODO: MemoryUsage, MemoryLimit
-			// "",
 			containerStats ? utils.format_memory_and_limit(containerStats.mem_usage, containerStats.mem_limit) : "",
 			state,
 

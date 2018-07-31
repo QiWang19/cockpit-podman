@@ -76,13 +76,16 @@ class Images extends React.Component {
 
 	handleRemoveImage() {
 		// console.log(this.state.imageWillDelete.Id);
-		const image = this.state.imageWillDelete;
+		const image = this.state.imageWillDelete.Id;
 		this.setState({
 			selectImageDeleteModal: false,
 		});
-		utils.varlinkCall(utils.PODMAN, "io.projectatomic.podman.RemoveImage", JSON.parse('{"name":"' + image.Id + '"}'))
+		utils.varlinkCall(utils.PODMAN, "io.projectatomic.podman.RemoveImage", JSON.parse('{"name":"' + image + '"}'))
 			.then((reply) => {
 				// console.log(reply.image);
+				const oldImages = this.props.images;
+				let newImages = oldImages.filter(elm => elm.Id !== image);
+				this.props.updateImages(newImages);
 			})
 			.catch(ex => {
 				// console.error("Failed to do RemoveImage call:", ex, JSON.stringify(ex));

@@ -48,7 +48,6 @@ function varlinkCallChannel(channel, method, parameters) {
 	channel.send(encoder.encode(JSON.stringify({ method, parameters: (parameters || {}) })));
 	channel.send([0]); // message separator
 	})
-	// .catch(err=>{console.log(err)});
 }
 
 /**
@@ -57,9 +56,9 @@ function varlinkCallChannel(channel, method, parameters) {
  */
 export function varlinkCall(channelOptions, method, parameters) {
     var channel = cockpit.channel(Object.assign({payload: "stream", binary: true, superuser: "require" }, channelOptions));
-    var response = varlinkCallChannel(channel, method, parameters);
-    response.finally(() => channel.close());
-    return response;
+	return varlinkCallChannel(channel, method, parameters).finally(() => {
+		channel.close()
+	});
 }
 
 export function truncate_id(id) {

@@ -233,3 +233,7 @@ input[type=number] {
 .dialog-ct-visible {
     display: block;
 }
+
+.show { opacity: 0.86; }
+
+
