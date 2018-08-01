@@ -167,10 +167,6 @@ module.exports = {
                 loader: "babel-loader"
             },
             {
-                test: /\.es6$/,
-                loader: "babel-loader"
-            },
-            {
                 test: /\.css$/,
                 loader: extract.extract("css-loader?minimize=&root=" + libdir)
             },
@@ -178,14 +174,6 @@ module.exports = {
                 test: /\.less$/,
                 loader: extract.extract("css-loader?sourceMap&minimize=!less-loader?sourceMap&compress=false")
             },
-            {
-                test: /views\/[^\/]+\.html$/,
-                loader: "ng-cache?prefix=[dir]"
-            },
-            {
-                test: /[\/]angular\.js$/,
-                loader: "exports?angular"
-            }
         ]
     },
     plugins: plugins

@@ -5,6 +5,7 @@ import cockpit from 'cockpit';
  */
 const encoder = cockpit.utf8_encoder();
 const decoder = cockpit.utf8_decoder(true);
+const _ = cockpit.gettext;
 
 export const PODMAN = { unix: "/run/podman/io.projectatomic.podman" };
 /**
@@ -63,21 +64,21 @@ export function varlinkCall(channelOptions, method, parameters) {
 
 export function truncate_id(id) {
 	if (!id) {
-		return "";
+		return _("");
 	}
-	return id.substr(0, 12);
+	return _(id.substr(0, 12));
 }
 
 export function format_cpu_percent(cpuPercent) {
 	if (cpuPercent === undefined || isNaN(cpuPercent)) {
-		return "";
+		return _("");
 	}
-	return cpuPercent + "%";
+	return _(cpuPercent + "%");
 }
 
 export function format_memory_and_limit(usage, limit) {
 	if (usage === undefined || isNaN(usage))
-		return "";
+		return _("");
 
 	var mtext = "";
 	var units = 1024;
@@ -91,11 +92,10 @@ export function format_memory_and_limit(usage, limit) {
 	if (usage) {
 		parts = cockpit.format_bytes(usage, units, true);
 		if (mtext)
-			return parts[0] + mtext;
+			return _(parts[0] + mtext);
 		else
-			return parts.join(" ");
+			return _(parts.join(" "));
 	} else {
-		// return "?" + mtext;
-		return "";
+		return _("");
 	}
 }

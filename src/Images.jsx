@@ -1,15 +1,15 @@
 import React from 'react';
 import cockpit from 'cockpit';
 import Listing from '../lib/cockpit-components-listing.jsx';
-import ImageDetails from './ImageDetails.js';
-import ContainersRunImageModal from './ContainersRunImageModal.js';
-import ImageSecurity from './ImageSecurity.js';
-import ModalExample from './ImageDeleteModal.js';
-import ImageRemoveErrorModal from './ImageRemoveErrorModal.js';
+import ImageDetails from './ImageDetails.jsx';
+import ContainersRunImageModal from './ContainersRunImageModal.jsx';
+import ImageSecurity from './ImageSecurity.jsx';
+import ModalExample from './ImageDeleteModal.jsx';
+import ImageRemoveErrorModal from './ImageRemoveErrorModal.jsx';
 import * as utils from './util.js';
 
 const moment = require('moment');
-const atomic = require('./atomic');
+const atomic = require('./atomic.jsx');
 const _ = cockpit.gettext;
 
 class Images extends React.Component {
@@ -59,7 +59,7 @@ class Images extends React.Component {
 		});
 	}
 
-	deleteImage(image, event) {
+	deleteImage(image) {
 		// console.log(image.RepoTags[0]);
 		this.setState((prevState) => ({
 			imageWillDelete: image,
@@ -82,7 +82,7 @@ class Images extends React.Component {
 		});
 		utils.varlinkCall(utils.PODMAN, "io.projectatomic.podman.RemoveImage", JSON.parse('{"name":"' + image + '"}'))
 			.then((reply) => {
-				// console.log(reply.image);
+				console.log(reply.image);
 				const oldImages = this.props.images;
 				let newImages = oldImages.filter(elm => elm.Id !== image);
 				this.props.updateImages(newImages);
@@ -154,7 +154,7 @@ class Images extends React.Component {
 			<button
 				className="btn btn-danger btn-delete pficon pficon-delete"
 				// TODO: deleteImage
-				onClick={(event) => this.deleteImage(image)}
+				onClick={() => this.deleteImage(image)}
 			/>
 		];
 		return <Listing.ListingRow
@@ -167,7 +167,7 @@ class Images extends React.Component {
 				/>;
 	}
 
-    handleSearchImageClick(event) {
+    handleSearchImageClick() {
 			return undefined;
     }
 

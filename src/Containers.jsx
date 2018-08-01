@@ -1,9 +1,9 @@
 import React from 'react';
 import cockpit from 'cockpit';
 import Listing from '../lib/cockpit-components-listing.jsx';
-import ContainerDetails from './ContainerDetails.js';
-import Dropdown from './DropDown.js';
-import ContainerDeleteModal from './ContainerDeleteModal.js';
+import ContainerDetails from './ContainerDetails.jsx';
+import Dropdown from './DropDown.jsx';
+import ContainerDeleteModal from './ContainerDeleteModal.jsx';
 import * as utils from './util.js';
 
 const _ = cockpit.gettext;
@@ -34,7 +34,7 @@ class Containers extends React.Component {
 
 	//TODO
 	deleteContainer(container, event){
-		// event.preventDefault();
+		event.preventDefault();
 		// console.log(container.ID);
 		this.setState((prevState) => ({
 			containerWillDelete: container.ID,
@@ -74,6 +74,7 @@ class Containers extends React.Component {
 		let columns = [
 			{ name: container.Name, header: true },
 			image,
+			//Concat the cmd if has entrypoint, otherwise join cmd with space.
 			container.Config.Entrypoint === "" ? container.Config.Cmd.join(" ") : container.Config.Cmd.join(""),
 			container.State.Running ? utils.format_cpu_percent(container.HostConfig.CpuPercent) : "",
 			containerStats ? utils.format_memory_and_limit(containerStats.mem_usage, containerStats.mem_limit) : "",

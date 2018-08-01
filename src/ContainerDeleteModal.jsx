@@ -25,15 +25,6 @@ class ContainerDeleteModal extends React.Component {
 
 
   render() {
-    // if (this.props.containerWillDelete) {
-    //     console.log(this.props.containerWillDelete.ID);
-    // }
-
-    // const image = this.props.imageWillDelete ? this.props.imageWillDelete : undefined;
-    // const container = this.state.containerWillDelete ? this.props.containerWillDeletec : undefined;
-    // const repoTag = image ? image.RepoTags[0] : "";
-    // const id = container ? container.ID : "";
-    // console.log(id);
 
     return (
 

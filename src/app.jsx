@@ -21,9 +21,9 @@
 import cockpit from 'cockpit';
 import React from 'react';
 import './app.scss';
-import ContainerHeader from './ContainerHeader.js'
-import Containers from './Containers.js';
-import Images from './Images.js';
+import ContainerHeader from './ContainerHeader.jsx'
+import Containers from './Containers.jsx';
+import Images from './Images.jsx';
 /***
  * varlink protocol helpers
  * https://github.com/varlink/varlink.github.io/wiki

@@ -1,8 +1,8 @@
 import React from 'react';
 import cockpit from 'cockpit';
 import Select from '../lib/cockpit-components-select.jsx';
-require("./docker.css");
-const _ = cockpit.gettext;cockpit.gett
+require("./podman.css");
+const _ = cockpit.gettext;
 
 class ContainerHeader extends React.Component {
     constructor(props) {
@@ -24,7 +24,9 @@ class ContainerHeader extends React.Component {
 
     handleFilterChange (value) {
         this.setState({ filter: value });
-        this.props.onChange(value);
+        if (this.props.onChange) {
+            this.props.onChange(value);
+        }
     }
 
     handleFilterTextChange() {
