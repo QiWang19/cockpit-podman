@@ -27,7 +27,7 @@ const ImageDetails = (props) => {
                 <dt>{_("ID")}</dt>
                 <dd title={image.Id}>{truncate_id(image.Id)}</dd>
                 <dt>{_("Tags")}</dt>
-                <dd>{image.RepoTags.join(" ")}</dd>
+                <dd>{image.RepoTags ? image.RepoTags.join(" "): ""}</dd>
                 <dt>{_("Entrypoint")}</dt>
                 <dd>{entrypoint}</dd>
                 <dt>{_("Command")}</dt>

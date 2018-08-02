@@ -190,7 +190,7 @@ import PropTypes from 'prop-types';
         render() {
             const value = (this.props.children !== undefined) ? this.props.children : textForUndefined;
             return (
-                <li data-value={value} data-data={this.props.data}>
+                <li key={value} data-value={value} data-data={this.props.data}>
                     <a>{value}</a>
                 </li>
             );

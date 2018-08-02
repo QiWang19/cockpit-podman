@@ -21,7 +21,7 @@ class Images extends React.Component {
 			vulnerableInfos: {},
 			selectImageDeleteModal: false,
 			setImageRemoveErrorModal: false,
-			imageWillDelete: undefined,
+			imageWillDelete: {},
 		};
 
 		this.vulnerableInfoChanged = this.vulnerableInfoChanged.bind(this);
@@ -34,6 +34,7 @@ class Images extends React.Component {
 		this.handleCancelImageDeleteModal = this.handleCancelImageDeleteModal.bind(this);
 		this.handleRemoveImage = this.handleRemoveImage.bind(this);
 		this.handleCancelImageRemoveError = this.handleCancelImageRemoveError.bind(this);
+		this.handleForceRemoveImage = this.handleForceRemoveImage.bind(this);
 	}
 
 	vulnerableInfoChanged(event, infos) {
@@ -60,12 +61,10 @@ class Images extends React.Component {
 	}
 
 	deleteImage(image) {
-		// console.log(image.RepoTags[0]);
 		this.setState((prevState) => ({
-			imageWillDelete: image,
 			selectImageDeleteModal: !prevState.selectImageDeleteModal,
+			imageWillDelete: image,
 		}));
-		// return undefined;
 	}
 
 	handleCancelImageDeleteModal() {
@@ -75,28 +74,38 @@ class Images extends React.Component {
 	}
 
 	handleRemoveImage() {
-		// console.log(this.state.imageWillDelete.Id);
 		const image = this.state.imageWillDelete.Id;
 		this.setState({
 			selectImageDeleteModal: false,
 		});
 		utils.varlinkCall(utils.PODMAN, "io.projectatomic.podman.RemoveImage", JSON.parse('{"name":"' + image + '"}'))
 			.then((reply) => {
-				console.log(reply.image);
+				const idDel = reply.image ? reply.image : "";
 				const oldImages = this.props.images;
-				let newImages = oldImages.filter(elm => elm.Id !== image);
+				let newImages = oldImages.filter(elm => elm.Id !== idDel);
 				this.props.updateImages(newImages);
 			})
 			.catch(ex => {
-				// console.error("Failed to do RemoveImage call:", ex, JSON.stringify(ex));
-				console.log(ex);
+				console.error("Failed to do RemoveImage call:", ex, JSON.stringify(ex));
 				this.setState({
 					setImageRemoveErrorModal: true,
 				});
 			})
+	}
 
-
-		// return undefined;
+	handleForceRemoveImage() {
+		const id = this.state.imageWillDelete ? this.state.imageWillDelete.Id : "";
+		utils.varlinkCall(utils.PODMAN, "io.projectatomic.podman.RemoveImage", JSON.parse('{"name":"' + id + '","force": true }'))
+        .then(reply => {
+            this.setState({
+                setImageRemoveErrorModal: false
+            })
+            const idDel = reply.image ? reply.image : "";
+            const oldImages = this.props.images;
+			let newImages = oldImages.filter(elm => elm.Id !== idDel);
+			this.props.updateImages(newImages);
+        })
+        .catch(ex => console.error("Failed to do RemoveContainerForce call:", JSON.stringify(ex)));
 	}
 
 	renderRow(image) {
@@ -124,7 +133,7 @@ class Images extends React.Component {
 				data-image={image.id}
 			/>
 		let columns = [
-			{name: image.RepoTags[0], header: true},
+			{name: image.RepoTags ? image.RepoTags[0] : "", header: true},
 			vulnerabilityColumn,
 			moment(image.Created).isValid() ? moment(image.Created).calendar() : image.Created,
 			cockpit.format_bytes(image.VirtualSize),
@@ -150,10 +159,9 @@ class Images extends React.Component {
 			});
 		}
 
-		var actions = [
+		let actions = [
 			<button
 				className="btn btn-danger btn-delete pficon pficon-delete"
-				// TODO: deleteImage
 				onClick={() => this.deleteImage(image)}
 			/>
 		];
@@ -188,9 +196,9 @@ class Images extends React.Component {
 			//TODO: emptyCaption = _("No Images");
 			let emptyCaption = _("No images that match the current filter");
 			const getNewImageAction =
-				<a role="link" tabIndex="0" onClick={this.handleSearchImageClick} className="card-pf-link-with-icon pull-right">
+				[<a role="link" tabIndex="0" onClick={this.handleSearchImageClick} className="card-pf-link-with-icon pull-right">
 					<span className="pficon pficon-add-circle-o" />{_("Get new image")}
-				</a>;
+				</a>];
 			//TODO: filter images via filterText
 			let filtered = this.props.images;
 			let imageRows = filtered.map(this.renderRow);
@@ -205,6 +213,8 @@ class Images extends React.Component {
 				<ImageRemoveErrorModal
 					setImageRemoveErrorModal={this.state.setImageRemoveErrorModal}
 					handleCancelImageRemoveError={this.handleCancelImageRemoveError}
+					handleForceRemoveImage={this.handleForceRemoveImage}
+					imageWillDelete={this.state.imageWillDelete}
 				></ImageRemoveErrorModal>
 
 			return(
@@ -223,11 +233,6 @@ class Images extends React.Component {
 							show={this.state.setRunContainer}
 							handleCancelRunImage={this.handleCancelRunImage}
 						></ContainersRunImageModal>
-						{/* <ModalExample
-							selectImageDeleteModal={this.state.selectImageDeleteModal}
-							handleCancelImageDeleteModal={this.handleCancelImageDeleteModal}
-							imageWillDelete={this.state.imageWillDelete}
-						></ModalExample> */}
 						{imageDeleteModal}
 						{imageRemoveErrorModal}
 				</div>

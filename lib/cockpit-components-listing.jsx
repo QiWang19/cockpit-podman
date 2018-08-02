@@ -334,7 +334,7 @@ const Listing = (props) => {
         caption = <caption className="cockpit-caption">{props.title}{props.actions}</caption>;
 
     return (
-        <table className={ bodyClasses.join(" ") }>
+        <table key={props.title} className={ bodyClasses.join(" ") }>
             {caption}
             <thead className={headerClasses}>
                 {headerRow}

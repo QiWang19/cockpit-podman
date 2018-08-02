@@ -4,48 +4,24 @@ import cockpit from 'cockpit';
 
 const _ = cockpit.gettext;
 
-class ImageRemoveErrorModal extends React.Component {
-  constructor(props) {
-    super(props);
-
-    this.state = {
-      modal: false
-    };
-
-    this.toggle = this.toggle.bind(this);
-  }
-
-  toggle() {
-    this.setState({
-      modal: !this.state.modal
-    });
-  }
-
-
-
-  render() {
-    // const image = this.props.imageWillDelete ? this.props.imageWillDelete : undefined;
-    // const repoTag = image ? image.RepoTags[0] : "";
-    // console.log(repoTag);
-
+const ImageRemoveErrorModal = (props) => {
+    const repoTag = props.imageWillDelete.RepoTags ? _(props.imageWillDelete.RepoTags[0]) : _("");
     return (
-
       <div>
-        <Modal isOpen={this.props.setImageRemoveErrorModal} fade={false} toggle={this.toggle} >
+        <Modal isOpen={props.setImageRemoveErrorModal} fade={false} >
           <ModalHeader>
-            {_("Unexpected error")}
+            {cockpit.format(_("Please confirm forced deletion of $0"),  _(repoTag))}
           </ModalHeader>
           <ModalBody>
             {_("A container associated with containers/storage, i.e. via Buildah, CRI-O, etc.image is in use by a container")}
           </ModalBody>
           <ModalFooter>
-            <Button color="primary" onClick={this.props.handleCancelImageRemoveError}>Cancel</Button>
-            {/* <Button color="danger" onClick={this.props.handleRemoveImage}>{_("Delete")}</Button>{' '} */}
+            <Button color="secondary" onClick={props.handleCancelImageRemoveError}>{_("Cancel")}</Button>
+            <Button color="danger" onClick={props.handleForceRemoveImage}>{_("Force Delete")}</Button>{' '}
           </ModalFooter>
         </Modal>
       </div>
     );
-  }
 }
 
 export default ImageRemoveErrorModal;
