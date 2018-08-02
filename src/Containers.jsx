@@ -43,7 +43,28 @@ class Containers extends React.Component {
 
     //TODO
     stopContainer(container) {
-        return undefined;
+        const id = container.ID;
+        let timeout = 10;
+        utils.varlinkCall(utils.PODMAN, "io.projectatomic.podman.StopContainer", JSON.parse('{"name":"' + id + '","timeout":' + timeout + '}' ))
+            .then(reply => {
+                const idStop = reply.container;
+                console.log(idStop);
+                utils.varlinkCall(utils.PODMAN, "io.projectatomic.podman.InspectContainer", JSON.parse('{"name":"' + idStop + '"}'))
+                    .then(reply => {
+                        const newElm = JSON.parse(reply.container)
+                        console.log(newElm);
+                        let oldContainers = this.props.containers;
+                        let idx = oldContainers.findIndex((obj => obj.ID == idStop));
+                        oldContainers[idx] = newElm;
+                        // console.log(idx);
+                        // console.log(oldContainers);
+                        this.props.updateContainers(oldContainers);
+                    })
+                    .catch(ex => console.error("Failed to do InspectImage call:", ex, JSON.stringify(ex)));
+            })
+            .catch(ex => console.error("Failed to do StopContainer call:", JSON.stringify(ex)));
+        // console.log("stop, ", container.ID);
+        // return undefined;
     }
 
     //TODO
@@ -157,7 +178,6 @@ class Containers extends React.Component {
         });
     }
 
-    //TODO: force
     handleForceRemoveContainer() {
         const id = this.state.containerWillDelete ? this.state.containerWillDelete.ID : "";
         utils.varlinkCall(utils.PODMAN, "io.projectatomic.podman.RemoveContainer", JSON.parse('{"name":"' + id + '","force": true }'))

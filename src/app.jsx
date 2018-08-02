@@ -88,33 +88,42 @@ class Application extends React.Component {
 			})
 			.catch(ex => console.error("Failed to do ListImages call:", ex, JSON.stringify(ex)));
 
-
-		this._asyncRequestContainers = utils.varlinkCall(utils.PODMAN, "io.projectatomic.podman.ListContainers")
-			.then(reply => {
-				this._asyncRequestContainers = null;
-				this.setState({containersMeta: reply.containers || []});
-				this.state.containersMeta.map((container) => {
-					utils.varlinkCall(utils.PODMAN, "io.projectatomic.podman.InspectContainer", JSON.parse('{"name":"' + container.id + '"}'))
-						.then(reply => {
-							const temp_containers = this.state.containers;
-							temp_containers.push(JSON.parse(reply.container));
-							this.setState({containers: temp_containers});
-						})
-						.catch(ex => console.error("Failed to do InspectImage call:", ex, JSON.stringify(ex)));
-				});
-				this.state.containersMeta.map((container) => {
-					utils.varlinkCall(utils.PODMAN, "io.projectatomic.podman.GetContainerStats", JSON.parse('{"name":"' + container.id + '"}'))
-						.then(reply => {
-							const temp_container_stats = this.state.containersStats;
-							if (reply.container) {
-								temp_container_stats[container.id] = reply.container;
-							}
-							this.setState({containersStats: temp_container_stats});
-						})
-						.catch(ex => console.error("Failed to do GetContainerStats call:", ex, JSON.stringify(ex)));
-				});
-			})
-			.catch(ex => console.error("Failed to do ListContainers call:", JSON.stringify(ex), ex.toString()));
+		// this.interval = setInterval(()=>{
+			this._asyncRequestContainers = utils.varlinkCall(utils.PODMAN, "io.projectatomic.podman.ListContainers")
+				.then(reply => {
+					this._asyncRequestContainers = null;
+					this.setState({containersMeta: reply.containers || []});
+					this.state.containersMeta.map((container) => {
+						utils.varlinkCall(utils.PODMAN, "io.projectatomic.podman.InspectContainer", JSON.parse('{"name":"' + container.id + '"}'))
+							.then(reply => {
+								const temp_containers = this.state.containers;
+								temp_containers.push(JSON.parse(reply.container));
+								this.setState({containers: temp_containers});
+							})
+							.catch(ex => console.error("Failed to do InspectImage call:", ex, JSON.stringify(ex)));
+					});
+					this.state.containersMeta.map((container) => {
+						utils.varlinkCall(utils.PODMAN, "io.projectatomic.podman.GetContainerStats", JSON.parse('{"name":"' + container.id + '"}'))
+							.then(reply => {
+								const temp_container_stats = this.state.containersStats;
+								if (reply.container) {
+									temp_container_stats[container.id] = reply.container;
+								}
+								this.setState({containersStats: temp_container_stats});
+							})
+							.catch(ex => console.error("Failed to do GetContainerStats call:", ex, JSON.stringify(ex)));
+					});
+				})
+				.catch(ex => console.error("Failed to do ListContainers call:", JSON.stringify(ex), ex.toString()));
+			// this.setState({
+			// 	containers:[],
+			// 	containersStats:[]
+			// })
+		// }, 1000)
+		this.setState({
+			containers:[],
+			containersStats:[]
+		})
 	}
 
     componentWillUnmount() {

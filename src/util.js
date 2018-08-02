@@ -108,3 +108,16 @@ export function format_memory_and_limit(usage, limit) {
 		return _("");
 	}
 }
+
+export function container_stop(container, timeout) {
+	const id = container.ID;
+	if (timeout == undefined) {
+		timeout = 10;
+	}
+	varlinkCall(PODMAN, "io.projectatomic.podman.StopContainer", JSON.parse('{"name":"' + id + '","timeout":' + timeout + '}' ))
+		.then(reply => {
+			console.log(reply.container);
+			return reply.container;
+		})
+        .catch(ex => console.error("Failed to do RemoveContainerForce call:", JSON.stringify(ex)));
+}
