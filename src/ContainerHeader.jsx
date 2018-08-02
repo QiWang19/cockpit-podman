@@ -1,7 +1,7 @@
 import React from 'react';
 import cockpit from 'cockpit';
 import Select from '../lib/cockpit-components-select.jsx';
-require("./podman.css");
+require("./podman.scss");
 const _ = cockpit.gettext;
 
 class ContainerHeader extends React.Component {
