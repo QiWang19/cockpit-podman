@@ -20,7 +20,7 @@
 
 import cockpit from 'cockpit';
 import React from 'react';
-import './app.scss';
+import './podman.scss';
 import ContainerHeader from './ContainerHeader.jsx'
 import Containers from './Containers.jsx';
 import Images from './Images.jsx';
@@ -127,10 +127,10 @@ class Application extends React.Component {
 		if (this._asyncRequestContainers) {
 			this._asyncRequestContainers.cancel();
 		}
-		clearInterval(this.interval);
     }
 
     render() {
+		console.log(this.state.containers);
 		let imageList;
 		let containerList;
 		imageList =

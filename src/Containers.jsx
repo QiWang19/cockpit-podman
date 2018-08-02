@@ -68,6 +68,7 @@ class Containers extends React.Component {
             image,
             //Concat the cmd directly if has entrypoint, otherwise join cmd with space.
             container.Config.Entrypoint === "" ? container.Config.Cmd.join(" ") : container.Config.Cmd.join(""),
+
             container.State.Running ? utils.format_cpu_percent(container.HostConfig.CpuPercent) : "",
             containerStats ? utils.format_memory_and_limit(containerStats.mem_usage, containerStats.mem_limit) : "",
             state,

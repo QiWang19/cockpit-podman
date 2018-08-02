@@ -11,7 +11,6 @@ class ContainerHeader extends React.Component {
             filter: 'running',
             filterText: ''
         };
-        this.filterChanged = this.filterChanged.bind(this);
         this.handleFilterChange = this.handleFilterChange.bind(this);
         this.handleFilterTextChange = this.handleFilterTextChange.bind(this);
     }
