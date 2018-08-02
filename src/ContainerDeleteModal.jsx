@@ -10,14 +10,14 @@ const ContainerDeleteModal = (props) => {
 		<div>
 			<Modal isOpen={props.selectContainerDeleteModal} fade={false} >
 				<ModalHeader>
-				{cockpit.format(_("Please confirm deletion of $0"), utils.truncate_id(props.containerWillDelete.ID))}
+					{cockpit.format(_("Please confirm deletion of $0"), utils.truncate_id(props.containerWillDelete.ID))}
 				</ModalHeader>
 				<ModalBody>
-				{_("Deleting a container will erase all data in it.")}
+					{_("Deleting a container will erase all data in it.")}
 				</ModalBody>
 				<ModalFooter>
-				<Button color="secondary" onClick={props.handleCancelContainerDeleteModal}>Cancel</Button>
-				<Button color="danger" onClick={props.handleRemoveContainer}>{_("Delete")}</Button>{' '}
+					<Button color="secondary" onClick={props.handleCancelContainerDeleteModal}>Cancel</Button>
+					<Button color="danger" onClick={props.handleRemoveContainer}>{_("Delete")}</Button>{' '}
 				</ModalFooter>
 			</Modal>
 		</div>
