@@ -62,7 +62,6 @@ class Containers extends React.Component {
     renderRow(containersStats, container) {
         const containerStats = containersStats[container.ID] ? containersStats[container.ID] : undefined;
         const isRunning = !!container.State.Running;
-        //TODO: check container.Image == container.ImageID
         const image = container.ImageName;
         const state = container.State.Status;
 
@@ -139,13 +138,14 @@ class Containers extends React.Component {
                 this.props.updateContainers(newContainers);
             })
             .catch((ex) => {
-                console.error("Failed to do RemoveContainer call:", ex, JSON.stringify(ex));
+                // console.error("Failed to do RemoveContainer call:", ex, JSON.stringify(ex));
+                console.log(ex.toString());
                 if (container.State.Running) {
-                    this.containerRemoveErrorMsg = _("Container is currently running.");
+                    this.containerRemoveErrorMsg = _(ex);
                 } else {
                     //TODO:
                     this.containerRemoveErrorMsg = _("Container is currently marked as not running, but regular stopping failed.") +
-                        " " + _("Error message from Podman:") + " '" + "ex.message" + "'";
+                        " " + _("Error message from Podman:") + " '" + ex;
                 }
                 this.setState({
                     setContainerRemoveErrorModal: true

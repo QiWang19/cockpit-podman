@@ -34,9 +34,10 @@ function varlinkCallChannel(channel, method, parameters) {
 
 		var reply = decoder.decode(data.slice(0, -1));
 		var json = JSON.parse(reply);
-		if (json.error)
-		reject(json.error)
-		else if (json.parameters) {
+		if (json.error) {
+			let msg = varlinkCallError(json);
+			reject(msg);
+		} else if (json.parameters) {
 		// debugging
 		// console.log("varlinkCall", method, "→", JSON.stringify(json.parameters));
 		resolve(json.parameters)
@@ -49,6 +50,14 @@ function varlinkCallChannel(channel, method, parameters) {
 	channel.send(encoder.encode(JSON.stringify({ method, parameters: (parameters || {}) })));
 	channel.send([0]); // message separator
 	})
+}
+
+function varlinkCallError(error) {
+	let str = "";
+	error.error ? str += error.error.toString() : str;
+	error.parameters.reason ? str += " " + error.parameters.reason.toString() : str;
+	// console.log(str);
+	return str;
 }
 
 /**

@@ -73,23 +73,21 @@ class Application extends React.Component {
 			})
 			.catch(ex => console.error("Failed to do GetVersion call:", JSON.stringify(ex)));
 
-		// this.interval = setInterval(()=>{
-			this._asyncRequestImages = utils.varlinkCall(utils.PODMAN, "io.projectatomic.podman.ListImages")
-				.then(reply => {
-					this._asyncRequestImages = null;
-					this.setState({ imagesMeta: reply.images });
-					this.state.imagesMeta.map((img)=>{
-						utils.varlinkCall(utils.PODMAN, "io.projectatomic.podman.InspectImage", JSON.parse('{"name":"' + img.id + '"}'))
-							.then(reply => {
-								const temp_imgs = this.state.images;
-								temp_imgs.push(JSON.parse(reply.image));
-								this.setState({images: temp_imgs});
-							})
-							.catch(ex => console.error("Failed to do InspectImage call:", ex, JSON.stringify(ex)));
-					})
+		this._asyncRequestImages = utils.varlinkCall(utils.PODMAN, "io.projectatomic.podman.ListImages")
+			.then(reply => {
+				this._asyncRequestImages = null;
+				this.setState({ imagesMeta: reply.images });
+				this.state.imagesMeta.map((img)=>{
+					utils.varlinkCall(utils.PODMAN, "io.projectatomic.podman.InspectImage", JSON.parse('{"name":"' + img.id + '"}'))
+						.then(reply => {
+							const temp_imgs = this.state.images;
+							temp_imgs.push(JSON.parse(reply.image));
+							this.setState({images: temp_imgs});
+						})
+						.catch(ex => console.error("Failed to do InspectImage call:", ex, JSON.stringify(ex)));
 				})
-				.catch(ex => console.error("Failed to do ListImages call:", ex, JSON.stringify(ex)));
-		// }, 1000);
+			})
+			.catch(ex => console.error("Failed to do ListImages call:", ex, JSON.stringify(ex)));
 
 
 		this._asyncRequestContainers = utils.varlinkCall(utils.PODMAN, "io.projectatomic.podman.ListContainers")

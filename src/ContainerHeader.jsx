@@ -35,7 +35,6 @@ class ContainerHeader extends React.Component {
 
     render() {
         return(
-            // TODO：selected
             <div className="content-filter" >
                 <Select.Select id="containers-containers-filter" initial={this.state.filter} onChange={this.handleFilterChange}>
                     <Select.SelectEntry data='all'>{_("Everything")}</Select.SelectEntry>

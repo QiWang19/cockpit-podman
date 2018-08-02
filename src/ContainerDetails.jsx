@@ -21,7 +21,7 @@ const ContainerDetails = ({container}) => (
             <dt>{_("Created")}</dt>
             <dd>{moment(container.Created).isValid() ? moment(container.Created).calendar() : container.Created}</dd>
             <dt>{_("Image")}</dt>
-            <dd>{container.Image}</dd>
+            <dd>{container.ImageName}</dd>
             <dt>{_("Command")}</dt>
             <dd>{container.Config.Cmd}</dd>
             <dt>{_("State")}</dt>

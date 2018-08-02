@@ -13,7 +13,7 @@ const ImageRemoveErrorModal = (props) => {
             {cockpit.format(_("Please confirm forced deletion of $0"),  _(repoTag))}
           </ModalHeader>
           <ModalBody>
-            {_("A container associated with containers/storage, i.e. via Buildah, CRI-O, etc.image is in use by a container")}
+            {_(props.imageRemoveErrorMsg)}
           </ModalBody>
           <ModalFooter>
             <Button color="secondary" onClick={props.handleCancelImageRemoveError}>{_("Cancel")}</Button>

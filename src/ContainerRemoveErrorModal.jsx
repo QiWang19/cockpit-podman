@@ -13,7 +13,6 @@ const ContainerRemoveErrorModal = (props) => {
           {cockpit.format(_("Please confirm forced deletion of $0"), name)}
         </ModalHeader>
         <ModalBody>
-          {/* TODO: erorr reason */}
           {props.containerRemoveErrorMsg}
         </ModalBody>
         <ModalFooter>

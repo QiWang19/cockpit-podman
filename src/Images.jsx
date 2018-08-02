@@ -87,6 +87,7 @@ class Images extends React.Component {
 			})
 			.catch(ex => {
 				console.error("Failed to do RemoveImage call:", ex, JSON.stringify(ex));
+				this.imageRemoveErrorMsg = _(ex);
 				this.setState({
 					setImageRemoveErrorModal: true,
 				});
@@ -99,13 +100,13 @@ class Images extends React.Component {
         .then(reply => {
             this.setState({
                 setImageRemoveErrorModal: false
-            })
+			})
             const idDel = reply.image ? reply.image : "";
             const oldImages = this.props.images;
 			let newImages = oldImages.filter(elm => elm.Id !== idDel);
 			this.props.updateImages(newImages);
         })
-        .catch(ex => console.error("Failed to do RemoveContainerForce call:", JSON.stringify(ex)));
+        .catch(ex => console.error("Failed to do RemoveImageForce call:", JSON.stringify(ex)));
 	}
 
 	renderRow(image) {
@@ -215,6 +216,7 @@ class Images extends React.Component {
 					handleCancelImageRemoveError={this.handleCancelImageRemoveError}
 					handleForceRemoveImage={this.handleForceRemoveImage}
 					imageWillDelete={this.state.imageWillDelete}
+					imageRemoveErrorMsg={this.imageRemoveErrorMsg}
 				></ImageRemoveErrorModal>
 
 			return(
