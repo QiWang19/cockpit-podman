@@ -66,9 +66,8 @@ class Containers extends React.Component {
         let columns = [
             { name: container.Name, header: true },
             image,
-            //Concat the cmd directly if has entrypoint, otherwise join cmd with space.
-            container.Config.Entrypoint === "" ? container.Config.Cmd.join(" ") : container.Config.Cmd.join(""),
-
+            container.Config.Cmd.join(" "),
+            //TODO:i18n
             container.State.Running ? utils.format_cpu_percent(container.HostConfig.CpuPercent) : "",
             containerStats ? utils.format_memory_and_limit(containerStats.mem_usage, containerStats.mem_limit) : "",
             state,
@@ -109,7 +108,8 @@ class Containers extends React.Component {
         ];
 
         return <Listing.ListingRow
-                    key={container.Id}
+                    key={container.ID}
+                    rowId={container.ID}
                     columns={columns}
                     tabRenderers={tabs}
                     navigateToItem={() => this.navigateToContainer(container)}

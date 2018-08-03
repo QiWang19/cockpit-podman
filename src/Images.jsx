@@ -197,7 +197,7 @@ class Images extends React.Component {
 			//TODO: emptyCaption = _("No Images");
 			let emptyCaption = _("No images that match the current filter");
 			const getNewImageAction =
-				[<a role="link" tabIndex="0" onClick={this.handleSearchImageClick} className="card-pf-link-with-icon pull-right">
+				[<a key={"searchImages"} role="link" tabIndex="0" onClick={this.handleSearchImageClick} className="card-pf-link-with-icon pull-right">
 					<span className="pficon pficon-add-circle-o" />{_("Get new image")}
 				</a>];
 			//TODO: filter images via filterText
@@ -220,9 +220,10 @@ class Images extends React.Component {
 				></ImageRemoveErrorModal>
 
 			return(
-				<div className="container-fluid" >
-					<div>
+				<div key={"images"} className="container-fluid" >
+					<div key={"imageslist"}>
 						<Listing.Listing
+							key={"ImagesListing"}
 							title={_("Images")}
 							columnTitles={columnTitles}
 							emptyCaption={emptyCaption}

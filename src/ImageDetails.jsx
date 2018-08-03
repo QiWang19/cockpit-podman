@@ -29,9 +29,9 @@ const ImageDetails = (props) => {
                 <dt>{_("Tags")}</dt>
                 <dd>{image.RepoTags ? image.RepoTags.join(" "): ""}</dd>
                 <dt>{_("Entrypoint")}</dt>
-                <dd>{entrypoint}</dd>
+                <dd>{entrypoint ? entrypoint.join(" ") : ""}</dd>
                 <dt>{_("Command")}</dt>
-                <dd>{command }</dd>
+                <dd>{command ? command.join(" ") : "" }</dd>
                 <dt>{_("Created")}</dt>
                 <dd title={created.toLocaleString()}>{moment(created).isValid() ? moment(created).calendar() : created}</dd>
                 <dt>{_("Author")}</dt>

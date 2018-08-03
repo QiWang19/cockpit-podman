@@ -23,7 +23,7 @@ const ContainerDetails = ({container}) => (
             <dt>{_("Image")}</dt>
             <dd>{container.ImageName}</dd>
             <dt>{_("Command")}</dt>
-            <dd>{container.Config.Cmd}</dd>
+            <dd>{container.Config.Cmd ? container.Config.Cmd.join(" ") : ""}</dd>
             <dt>{_("State")}</dt>
             <dd>{render_container_state(container.State)}</dd>
         </dl>

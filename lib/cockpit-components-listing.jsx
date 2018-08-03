@@ -231,12 +231,12 @@ class ListingRow extends React.Component {
             }
 
             return (
-                <tbody className="open">
+                <tbody key={this.props.rowId} className="open">
                     {listingItem}
                     <tr className="listing-ct-panel">
-                        <td colSpan={ headerEntries.length + (expandToggle ? 1 : 0) }>
-                            <div className="listing-ct-head">
-                                <div className="listing-ct-actions">
+                        <td key={this.props.rowId} colSpan={ headerEntries.length + (expandToggle ? 1 : 0) }>
+                            <div key={this.props.rowId} className="listing-ct-head">
+                                <div key={this.props.rowId} className="listing-ct-actions">
                                     {listingDetail}
                                     {this.props.listingActions}
                                 </div>
@@ -251,7 +251,7 @@ class ListingRow extends React.Component {
             );
         } else {
             return (
-                <tbody>
+                <tbody key={this.props.rowId}>
                     {listingItem}
                     <tr className="listing-ct-panel" />
                 </tbody>

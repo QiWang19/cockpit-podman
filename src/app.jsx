@@ -149,14 +149,14 @@ class Application extends React.Component {
 			></Containers>
 
 		return (
-			<div>
-				<div className="content-filter">
+			<div key={"overview"}>
+				<div key={"containerheader"} className="content-filter">
 					<ContainerHeader
 						onlyShowRunning={this.state.onlyShowRunning}
 						onChange={this.onChange}
 					></ContainerHeader>
 				</div>
-				<div className="container-fluid">
+				<div key={"lists"} className="container-fluid">
 					{/* List everything */}
 					{containerList}
 					{imageList}
