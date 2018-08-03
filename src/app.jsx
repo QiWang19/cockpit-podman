@@ -20,11 +20,11 @@
 
 import cockpit from 'cockpit';
 import React from 'react';
-import './podman.scss';
 import ContainerHeader from './ContainerHeader.jsx'
 import Containers from './Containers.jsx';
 import Images from './Images.jsx';
 import * as utils from './util.js';
+import './podman.scss';
 
 const _ = cockpit.gettext;
 

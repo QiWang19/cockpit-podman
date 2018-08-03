@@ -25,8 +25,6 @@ class Images extends React.Component {
 		};
 
 		this.vulnerableInfoChanged = this.vulnerableInfoChanged.bind(this);
-		this.renderRow = this.renderRow.bind(this);
-		this.navigateToImage = this.navigateToImage.bind(this);
 		this.handleSearchImageClick = this.handleSearchImageClick.bind(this);
 		this.showRunImageDialog = this.showRunImageDialog.bind(this);
 		this.handleCancelRunImage = this.handleCancelRunImage.bind(this);
@@ -54,7 +52,6 @@ class Images extends React.Component {
 	}
 
 	showRunImageDialog(e) {
-		e.preventDefault()
 		this.setState({
 			setRunContainer: true
 		});
@@ -202,7 +199,7 @@ class Images extends React.Component {
 				</a>];
 			//TODO: filter images via filterText
 			let filtered = this.props.images;
-			let imageRows = filtered.map(this.renderRow);
+			let imageRows = filtered.map(this.renderRow, this);
 			const imageDeleteModal =
 				<ModalExample
 					selectImageDeleteModal={this.state.selectImageDeleteModal}

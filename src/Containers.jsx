@@ -17,7 +17,6 @@ class Containers extends React.Component {
             setContainerRemoveErrorModal: false,
             containerWillDelete: {}
         }
-        this.navigateToContainer = this.navigateToContainer.bind(this);
         this.renderRow = this.renderRow.bind(this);
         this.restartContainer = this.restartContainer.bind(this);
         this.startContainer = this.startContainer.bind(this);
@@ -87,6 +86,7 @@ class Containers extends React.Component {
 
         startStopActions.push({
             label: _("Restart"),
+            // onActivate: this.restartContainer,
             onActivate: this.restartContainer,
             disabled: !isRunning
         });
@@ -186,7 +186,7 @@ class Containers extends React.Component {
         let filtered = this.props.containers.filter(container => (!this.props.onlyShowRunning || container.State.Running));
         let rows = filtered.map(function (container) {
             return renderRow(containersStats, container)
-        });
+        }, this);
         const containerDeleteModal =
             <ContainerDeleteModal
                 selectContainerDeleteModal={this.state.selectContainerDeleteModal}
