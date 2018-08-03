@@ -179,6 +179,7 @@ class Containers extends React.Component {
     }
 
     handleForceRemoveContainer() {
+        document.body.classList.add('busy-cursor');
         const id = this.state.containerWillDelete ? this.state.containerWillDelete.ID : "";
         utils.varlinkCall(utils.PODMAN, "io.projectatomic.podman.RemoveContainer", JSON.parse('{"name":"' + id + '","force": true }'))
         .then(reply => {
@@ -189,6 +190,7 @@ class Containers extends React.Component {
             const oldContainers = this.props.containers;
             let newContainers = oldContainers.filter(elm => elm.ID !== idDel);
             this.props.updateContainers(newContainers);
+            document.body.classList.remove('busy-cursor');
         })
         .catch(ex => console.error("Failed to do RemoveContainerForce call:", JSON.stringify(ex)));
 

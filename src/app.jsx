@@ -20,7 +20,7 @@
 
 import cockpit from 'cockpit';
 import React from 'react';
-import './app.scss';
+import './podman.scss';
 import ContainerHeader from './ContainerHeader.jsx'
 import Containers from './Containers.jsx';
 import Images from './Images.jsx';
