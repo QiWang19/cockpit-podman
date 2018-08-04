@@ -126,6 +126,7 @@ class Images extends React.Component {
 		//TODO: image waiting if - else
 		let element =
 			<button
+				key={image.Id + "runimage"}
 				className="btn btn-default btn-control-ct fa fa-play"
 				onClick={ this.showRunImageDialog }
 				data-image={image.id}
@@ -159,6 +160,7 @@ class Images extends React.Component {
 
 		let actions = [
 			<button
+				key={image.Id + "delete"}
 				className="btn btn-danger btn-delete pficon pficon-delete"
 				onClick={() => this.deleteImage(image)}
 			/>
