@@ -158,15 +158,6 @@ module.exports = {
                 test: /\.scss$/
             },
             {
-                test: /\.js$/,
-                exclude: /\/node_modules\/.*\//, // exclude external dependencies
-                loader: 'strict-loader' // Adds "use strict"
-            },
-            {
-                test: /\.jsx$/,
-                loader: "babel-loader"
-            },
-            {
                 test: /\.css$/,
                 loader: extract.extract("css-loader?minimize=&root=" + libdir)
             },

@@ -20,11 +20,11 @@
 
 import cockpit from 'cockpit';
 import React from 'react';
-import './podman.scss';
 import ContainerHeader from './ContainerHeader.jsx'
 import Containers from './Containers.jsx';
 import Images from './Images.jsx';
 import * as utils from './util.js';
+import './podman.scss';
 
 const _ = cockpit.gettext;
 
@@ -136,10 +136,10 @@ class Application extends React.Component {
 		if (this._asyncRequestContainers) {
 			this._asyncRequestContainers.cancel();
 		}
-		clearInterval(this.interval);
     }
 
     render() {
+		console.log(this.state.containers);
 		let imageList;
 		let containerList;
 		imageList =
@@ -158,14 +158,14 @@ class Application extends React.Component {
 			></Containers>
 
 		return (
-			<div>
-				<div className="content-filter">
+			<div key={"overview"}>
+				<div key={"containerheader"} className="content-filter">
 					<ContainerHeader
 						onlyShowRunning={this.state.onlyShowRunning}
 						onChange={this.onChange}
 					></ContainerHeader>
 				</div>
-				<div className="container-fluid">
+				<div key={"lists"} className="container-fluid">
 					{/* List everything */}
 					{containerList}
 					{imageList}

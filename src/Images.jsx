@@ -25,8 +25,6 @@ class Images extends React.Component {
 		};
 
 		this.vulnerableInfoChanged = this.vulnerableInfoChanged.bind(this);
-		this.renderRow = this.renderRow.bind(this);
-		this.navigateToImage = this.navigateToImage.bind(this);
 		this.handleSearchImageClick = this.handleSearchImageClick.bind(this);
 		this.showRunImageDialog = this.showRunImageDialog.bind(this);
 		this.handleCancelRunImage = this.handleCancelRunImage.bind(this);
@@ -54,7 +52,6 @@ class Images extends React.Component {
 	}
 
 	showRunImageDialog(e) {
-		e.preventDefault()
 		this.setState({
 			setRunContainer: true
 		});
@@ -197,12 +194,12 @@ class Images extends React.Component {
 			//TODO: emptyCaption = _("No Images");
 			let emptyCaption = _("No images that match the current filter");
 			const getNewImageAction =
-				[<a role="link" tabIndex="0" onClick={this.handleSearchImageClick} className="card-pf-link-with-icon pull-right">
+				[<a key={"searchImages"} role="link" tabIndex="0" onClick={this.handleSearchImageClick} className="card-pf-link-with-icon pull-right">
 					<span className="pficon pficon-add-circle-o" />{_("Get new image")}
 				</a>];
 			//TODO: filter images via filterText
 			let filtered = this.props.images;
-			let imageRows = filtered.map(this.renderRow);
+			let imageRows = filtered.map(this.renderRow, this);
 			const imageDeleteModal =
 				<ModalExample
 					selectImageDeleteModal={this.state.selectImageDeleteModal}
@@ -220,9 +217,10 @@ class Images extends React.Component {
 				></ImageRemoveErrorModal>
 
 			return(
-				<div className="container-fluid" >
-					<div>
+				<div key={"images"} className="container-fluid" >
+					<div key={"imageslist"}>
 						<Listing.Listing
+							key={"ImagesListing"}
 							title={_("Images")}
 							columnTitles={columnTitles}
 							emptyCaption={emptyCaption}
