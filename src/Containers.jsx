@@ -93,9 +93,11 @@ class Containers extends React.Component {
 
         var actions = [
             <button
+                key={container.ID + "delete"}
                 className="btn btn-danger btn-delete pficon pficon-delete"
                 onClick={(event) => this.deleteContainer(container, event)} />,
             <button
+                key={container.ID + "commit"}
                 className="btn btn-default"
                 disabled={isRunning}
                 data-container-id={container.ID}
@@ -206,7 +208,7 @@ class Containers extends React.Component {
         return (
             <div className="container-fluid ">
                 <div>
-                    <Listing.Listing title={_("Containers")} columnTitles={columnTitles} emptyCaption={emptyCaption}>
+                    <Listing.Listing key={"ContainerListing"} title={_("Containers")} columnTitles={columnTitles} emptyCaption={emptyCaption}>
                         {rows}
                     </Listing.Listing>
                     {containerDeleteModal}

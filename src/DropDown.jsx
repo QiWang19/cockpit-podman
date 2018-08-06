@@ -22,7 +22,7 @@ const DropDown = (props) => {
                 {
                     props.actions.map((action, index) => {
                         return (
-                            <li className={ action.disabled ? 'disabled' : '' }>
+                            <li key={index} className={ action.disabled ? 'disabled' : '' }>
                                 <a data-value={index} role="link" tabIndex="0" onClick={handleClick}>{action.label}</a>
                             </li>
                         );
