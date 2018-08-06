@@ -15,8 +15,9 @@ class Containers extends React.Component {
         this.state = {
             selectContainerDeleteModal: false,
             setContainerRemoveErrorModal: false,
-            containerWillDelete: {}
-        }
+            containerWillDelete: {},
+            setWaitCursor:"",
+        };
         this.renderRow = this.renderRow.bind(this);
         this.restartContainer = this.restartContainer.bind(this);
         this.startContainer = this.startContainer.bind(this);
@@ -147,6 +148,7 @@ class Containers extends React.Component {
     }
 
     handleRemoveContainer() {
+        document.body.classList.add('busy-cursor');
         const container = this.state.containerWillDelete;
         const id = this.state.containerWillDelete ? this.state.containerWillDelete.ID : "";
         this.setState({
@@ -158,6 +160,7 @@ class Containers extends React.Component {
                 const oldContainers = this.props.containers;
                 let newContainers = oldContainers.filter(elm => elm.ID !== idDel);
                 this.props.updateContainers(newContainers);
+                document.body.classList.remove('busy-cursor');
             })
             .catch((ex) => {
                 // console.error("Failed to do RemoveContainer call:", ex, JSON.stringify(ex));
@@ -172,6 +175,7 @@ class Containers extends React.Component {
                 this.setState({
                     setContainerRemoveErrorModal: true
                 })
+                document.body.classList.remove('busy-cursor');
             });
     }
 
@@ -181,9 +185,17 @@ class Containers extends React.Component {
         });
     }
 
+    handleSetWaitCursor() {
+        console.log("wait");
+        this.setState((prevState)=>({
+            setWaitCursor: prevState.setWaitCursor === "" ? "wait-cursor" : ""
+        }))
+    }
+
     handleForceRemoveContainer() {
         //TODO: style cursor
         document.body.classList.add('busy-cursor');
+        this.handleSetWaitCursor();
         const id = this.state.containerWillDelete ? this.state.containerWillDelete.ID : "";
         utils.varlinkCall(utils.PODMAN, "io.projectatomic.podman.RemoveContainer", JSON.parse('{"name":"' + id + '","force": true }'))
         .then(reply => {
@@ -195,6 +207,7 @@ class Containers extends React.Component {
             let newContainers = oldContainers.filter(elm => elm.ID !== idDel);
             this.props.updateContainers(newContainers);
             document.body.classList.remove('busy-cursor');
+            this.handleSetWaitCursor();
         })
         .catch(ex => console.error("Failed to do RemoveContainerForce call:", JSON.stringify(ex)));
 
@@ -226,6 +239,7 @@ class Containers extends React.Component {
                 handleForceRemoveContainer={this.handleForceRemoveContainer}
                 containerWillDelete={this.state.containerWillDelete}
                 containerRemoveErrorMsg={this.containerRemoveErrorMsg}
+                setWaitCursor={this.state.setWaitCursor}
             ></ContainerRemoveErrorModal>
 
         return (
