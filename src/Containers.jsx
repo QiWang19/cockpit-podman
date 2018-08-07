@@ -243,14 +243,12 @@ class Containers extends React.Component {
             ></ContainerRemoveErrorModal>
 
         return (
-            <div className="container-fluid ">
-                <div>
+            <div id="containers-containers" className="container-fluid ">
                     <Listing.Listing key={"ContainerListing"} title={_("Containers")} columnTitles={columnTitles} emptyCaption={emptyCaption}>
                         {rows}
                     </Listing.Listing>
                     {containerDeleteModal}
                     {containerRemoveErrorModal}
-                </div>
             </div>
         );
     }

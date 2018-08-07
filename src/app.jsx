@@ -24,7 +24,6 @@ import ContainerHeader from './ContainerHeader.jsx'
 import Containers from './Containers.jsx';
 import Images from './Images.jsx';
 import * as utils from './util.js';
-import './podman.scss';
 
 const _ = cockpit.gettext;
 
@@ -139,7 +138,7 @@ class Application extends React.Component {
     }
 
     render() {
-		console.log(this.state.containers);
+		// console.log(this.state.containers);
 		let imageList;
 		let containerList;
 		imageList =
@@ -158,16 +157,17 @@ class Application extends React.Component {
 			></Containers>
 
 		return (
-			<div key={"overview"}>
+			<div id="overview" key={"overview"}>
 				<div key={"containerheader"} className="content-filter">
 					<ContainerHeader
 						onlyShowRunning={this.state.onlyShowRunning}
 						onChange={this.onChange}
 					></ContainerHeader>
 				</div>
-				<div key={"lists"} className="container-fluid">
-					{/* List everything */}
+				<div key={"containerslists"} className="container-fluid">
 					{containerList}
+				</div>
+				<div key={"imageslists"} className="container-fluid">
 					{imageList}
 				</div>
 			</div>

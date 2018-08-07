@@ -83,7 +83,6 @@ class Images extends React.Component {
 				this.props.updateImages(newImages);
 			})
 			.catch(ex => {
-				console.error("Failed to do RemoveImage call:", ex, JSON.stringify(ex));
 				this.imageRemoveErrorMsg = _(ex);
 				this.setState({
 					setImageRemoveErrorModal: true,
@@ -219,8 +218,9 @@ class Images extends React.Component {
 				></ImageRemoveErrorModal>
 
 			return(
-				<div key={"images"} className="container-fluid" >
-					<div key={"imageslist"}>
+				// <div key={"images"} className="container-fluid" >
+				// 	<div key={"imageslist"}>
+				<div id="containers-images" key={"images"} className="container-fluid" >
 						<Listing.Listing
 							key={"ImagesListing"}
 							title={_("Images")}
@@ -230,7 +230,6 @@ class Images extends React.Component {
 							{imageRows}
 						</Listing.Listing>
 					{/* TODO: {pendingRows} */}
-					</div>
 						<ContainersRunImageModal
 							show={this.state.setRunContainer}
 							handleCancelRunImage={this.handleCancelRunImage}

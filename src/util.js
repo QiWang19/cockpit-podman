@@ -38,11 +38,11 @@ function varlinkCallChannel(channel, method, parameters) {
 			let msg = varlinkCallError(json);
 			reject(msg);
 		} else if (json.parameters) {
-		// debugging
-		// console.log("varlinkCall", method, "→", JSON.stringify(json.parameters));
-		resolve(json.parameters)
+			// debugging
+			// console.log("varlinkCall", method, "→", JSON.stringify(json.parameters));
+			resolve(json.parameters)
 		} else
-		reject("protocol error: reply has neither parameters nor error: " + reply);
+			reject("protocol error: reply has neither parameters nor error: " + reply);
 	}
 
 	channel.addEventListener("close", on_close);

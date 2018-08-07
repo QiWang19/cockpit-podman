@@ -154,12 +154,9 @@ module.exports = {
             },
             {
                 exclude: /node_modules/,
-                loader: extract.extract('css-loader!sass-loader'),
-                test: /\.scss$/
-            },
-            {
-                test: /\.css$/,
-                loader: extract.extract("css-loader?minimize=&root=" + libdir)
+                loader: extract.extract('css-loader!sass-loader') ||
+                        extract.extract("css-loader?minimize=&root=" + libdir),
+                test: /\.s?css$/
             },
             {
                 test: /\.less$/,
