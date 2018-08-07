@@ -21,6 +21,9 @@ class TestApplication(testlib.MachineCase):
 
         self.login_and_go("/podman")
         b.wait_present("#app")
+
+        # b.wait_present("#connect-page")
+        # b.click("#connect-page button")
         b.wait_present(".content-filter div")
         b.wait_present("#containers-images")
         b.wait_in_text("#containers-images", "busybox:latest")

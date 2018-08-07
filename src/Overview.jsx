@@ -23,7 +23,7 @@ class Overview extends React.Component {
         const connect =
         <div key="startpodmanmessage" className="curtains-ct blank-slate-pf">
             <h1 translatable="yes">Podman is not installed or activated on the system</h1>
-            <div key="handlestartpodman" className="blank-slate-pf-main-action">
+            <div id="connect-page" key="handlestartpodman" className="blank-slate-pf-main-action">
                 <button
                     key={"startpodmanbtn"}
                     className="btn btn-primary btn-lg"
