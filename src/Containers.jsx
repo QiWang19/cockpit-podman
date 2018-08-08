@@ -2,7 +2,7 @@ import React from 'react';
 import cockpit from 'cockpit';
 import Listing from '../lib/cockpit-components-listing.jsx';
 import ContainerDetails from './ContainerDetails.jsx';
-import Dropdown from './DropDown.jsx';
+import Dropdown from './DropdownContainer.jsx';
 import ContainerDeleteModal from './ContainerDeleteModal.jsx';
 import ContainerRemoveErrorModal from './ContainerRemoveErrorModal.jsx';
 import * as utils from './util.js';
@@ -41,7 +41,6 @@ class Containers extends React.Component {
         }));
     }
 
-    //TODO
     stopContainer(container) {
         document.body.classList.add('busy-cursor');
         const id = container.ID;
@@ -49,24 +48,20 @@ class Containers extends React.Component {
         utils.varlinkCall(utils.PODMAN, "io.projectatomic.podman.StopContainer", JSON.parse('{"name":"' + id + '","timeout":' + timeout + '}' ))
             .then(reply => {
                 const idStop = reply.container;
-                console.log(idStop);
+                //update container info after stop
                 utils.varlinkCall(utils.PODMAN, "io.projectatomic.podman.InspectContainer", JSON.parse('{"name":"' + idStop + '"}'))
                     .then(reply => {
                         const newElm = JSON.parse(reply.container)
-                        console.log(newElm);
+                        //replace list with updated info
                         let oldContainers = this.props.containers;
                         let idx = oldContainers.findIndex((obj => obj.ID == idStop));
                         oldContainers[idx] = newElm;
-                        // console.log(idx);
-                        // console.log(oldContainers);
                         this.props.updateContainers(oldContainers);
                         document.body.classList.remove('busy-cursor');
                     })
                     .catch(ex => console.error("Failed to do InspectImage call:", ex, JSON.stringify(ex)));
             })
             .catch(ex => console.error("Failed to do StopContainer call:", JSON.stringify(ex)));
-        // console.log("stop, ", container.ID);
-        // return undefined;
     }
 
     //TODO

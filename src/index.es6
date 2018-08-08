@@ -21,10 +21,8 @@
 import React from 'react';
 import ReactDOM from 'react-dom';
 import Application from './app.jsx';
-// import Overview from './Overview.jsx';
 import './podman.scss';
 
 document.addEventListener("DOMContentLoaded", function () {
     ReactDOM.render(React.createElement(Application, {}), document.getElementById('app'));
-    // ReactDOM.render(React.createElement(Overview, {}), document.getElementById('app'))
 });
