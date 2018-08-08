@@ -43,6 +43,7 @@ class Containers extends React.Component {
 
     //TODO
     stopContainer(container) {
+        document.body.classList.add('busy-cursor');
         const id = container.ID;
         let timeout = 10;
         utils.varlinkCall(utils.PODMAN, "io.projectatomic.podman.StopContainer", JSON.parse('{"name":"' + id + '","timeout":' + timeout + '}' ))
@@ -59,6 +60,7 @@ class Containers extends React.Component {
                         // console.log(idx);
                         // console.log(oldContainers);
                         this.props.updateContainers(oldContainers);
+                        document.body.classList.remove('busy-cursor');
                     })
                     .catch(ex => console.error("Failed to do InspectImage call:", ex, JSON.stringify(ex)));
             })
