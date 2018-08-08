@@ -52,6 +52,18 @@ class TestApplication(testlib.MachineCase):
         b.wait_visible("#containers-containers")
         b.wait_in_text("#containers-containers", "No running containers")
 
+        # delete busybox:latest from container listing toggle
+        b.click("#containers-containers-filter button")
+        b.wait_visible("#containers-containers-filter .dropdown-menu")
+        b.click("#containers-containers-filter li[data-data='all'] a")
+        b.wait_visible("#containers-containers")
+        b.wait_visible('#containers-containers tr:contains("busybox:latest")')
+        b.click('#containers-containers tbody tr:contains("busybox:latest") td.listing-ct-toggle')
+        b.wait_visible('#containers-containers tbody tr:contains("busybox:latest") + tr button.btn-delete')
+        b.click('#containers-containers tbody tr:contains("busybox:latest") + tr button.btn-delete')
+        with b.wait_timeout(20):
+            b.wait_present(".modal-dialog div")
+
         # FIXME: UI needs to listen to change signals and update automatically
         # create a container
         # m.execute("podman run -d --name swamped-crate alpine sleep 10000")
