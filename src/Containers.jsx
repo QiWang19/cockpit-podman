@@ -41,10 +41,13 @@ class Containers extends React.Component {
         }));
     }
 
-    stopContainer(container) {
+    stopContainer(container, timeout) {
         document.body.classList.add('busy-cursor');
         const id = container.ID;
-        let timeout = 10;
+        // let timeout = 10;
+        if (!timeout) {
+            timeout = 10;
+        }
         utils.varlinkCall(utils.PODMAN, "io.projectatomic.podman.StopContainer", JSON.parse('{"name":"' + id + '","timeout":' + timeout + '}' ))
             .then(reply => {
                 const idStop = reply.container;
@@ -59,9 +62,16 @@ class Containers extends React.Component {
                         this.props.updateContainers(oldContainers);
                         document.body.classList.remove('busy-cursor');
                     })
-                    .catch(ex => console.error("Failed to do InspectImage call:", ex, JSON.stringify(ex)));
+                    .catch(ex => {
+                        console.error("Failed to do InspectImage call:", ex, JSON.stringify(ex))
+                        document.body.classList.remove('busy-cursor');
+
+                    });
             })
-            .catch(ex => console.error("Failed to do StopContainer call:", JSON.stringify(ex)));
+            .catch(ex => {
+                console.error("Failed to do StopContainer call:", JSON.stringify(ex))
+                document.body.classList.remove('busy-cursor');
+            });
     }
 
     //TODO
@@ -72,8 +82,9 @@ class Containers extends React.Component {
             .then(reply => {
                 const idStart = reply.container;
                 console.log(container);
-                // update container info after start
-                // setTimeout(()=> {
+                // setTimeout(() => {
+
+                    // update container info after start
                     utils.varlinkCall(utils.PODMAN, "io.projectatomic.podman.InspectContainer", JSON.parse('{"name":"' + id + '"}'))
                         .then(reply => {
                             console.log(idStart);
@@ -83,23 +94,83 @@ class Containers extends React.Component {
                             let idx = oldContainers.findIndex((obj => obj.ID == idStart));
                             oldContainers[idx] = newElm;
                             this.props.updateContainers(oldContainers);
-                            document.body.classList.remove('busy-cursor');
                         })
-                        .catch(ex => console.error("Failed to do InspectContainer call:", ex, JSON.stringify(ex)));
+                        .catch(ex => {
+                            console.error("Failed to do InspectContainer call:", ex, JSON.stringify(ex))
+                            document.body.classList.remove('busy-cursor');
+                        });
+                        utils.varlinkCall(utils.PODMAN, "io.projectatomic.podman.GetContainerStats", JSON.parse('{"name":"' + idStart + '"}'))
+                        .then(reply => {
+                            let temp_container_stats = this.props.containersStats;
+                            if (reply.container) {
+                                // console.log(idStart);
+                                console.log(reply.container);
+                                temp_container_stats[idStart] = reply.container;
+                            }
+                            this.props.updateContainerStats(temp_container_stats);
+                            document.body.classList.remove('busy-cursor');
+                            // this.setState({containersStats: temp_container_stats});
+                        })
+                        .catch(ex => {
+                            console.error("Failed to do GetContainerStats call:", ex, JSON.stringify(ex))
+                            document.body.classList.remove('busy-cursor');
+                        });
+                // }, 500)
 
-                // }, 1000)
             })
             .catch(ex => {
                 console.error("Failed to do StartContainer call:", JSON.stringify(ex))
                 document.body.classList.remove('busy-cursor');
             });
-        // console.log("start");
-        // return undefined;
     }
 
-    //TODO
-    restartContainer (container) {
-        return undefined;
+    restartContainer (container, timeout) {
+        document.body.classList.add('busy-cursor');
+        if (!timeout) {
+            timeout = 10;
+        }
+        const id = container.ID;
+        utils.varlinkCall(utils.PODMAN, "io.projectatomic.podman.RestartContainer", JSON.parse('{"name":"' + id + '","timeout":' + timeout + '}'))
+            .then(reply => {
+                const idRestart = reply.container;
+                // update container info after start
+                utils.varlinkCall(utils.PODMAN, "io.projectatomic.podman.InspectContainer", JSON.parse('{"name":"' + idRestart + '"}'))
+                    .then(reply => {
+                        const newElm = JSON.parse(reply.container)
+                        //replace list with updated info
+                        let oldContainers = this.props.containers;
+                        let idx = oldContainers.findIndex((obj => obj.ID == idRestart));
+                        oldContainers[idx] = newElm;
+                        this.props.updateContainers(oldContainers);
+                        document.body.classList.remove('busy-cursor');
+                    })
+                    .catch(ex => {
+                        console.error("Failed to do InspectContainer call:", ex, JSON.stringify(ex))
+                        document.body.classList.remove('busy-cursor');
+
+                    });
+                utils.varlinkCall(utils.PODMAN, "io.projectatomic.podman.GetContainerStats", JSON.parse('{"name":"' + idRestart + '"}'))
+                    .then(reply => {
+                        let temp_container_stats = this.props.containersStats;
+                        if (reply.container) {
+                            // console.log(idStart);
+                            // console.log(reply.container);
+                            temp_container_stats[idRestart] = reply.container;
+                        }
+                        this.props.updateContainerStats(temp_container_stats);
+                        document.body.classList.remove('busy-cursor');
+                        // this.setState({containersStats: temp_container_stats});
+                    })
+                    .catch(ex => {
+                        console.error("Failed to do GetContainerStats call:", ex, JSON.stringify(ex))
+                        document.body.classList.remove('busy-cursor');
+                    });
+
+            })
+            .catch(ex => {
+                console.error("Failed to do RestartContainer call:", JSON.stringify(ex))
+                document.body.classList.remove('busy-cursor');
+            });
     }
 
 
@@ -127,14 +198,14 @@ class Containers extends React.Component {
 
         let startStopActions = [];
         if (isRunning)
-            startStopActions.push({ label: _("Stop"), onActivate: () => this.stopContainer(container)});
+            startStopActions.push({ label: _("Stop"), onActivate: () => this.stopContainer(container, undefined)});
         else
             startStopActions.push({ label: _("Start"), onActivate: () => this.startContainer(container)});
 
         startStopActions.push({
             label: _("Restart"),
             // onActivate: this.restartContainer,
-            onActivate: this.restartContainer,
+            onActivate: () => this.restartContainer(container, undefined),
             disabled: !isRunning
         });
 
@@ -152,7 +223,6 @@ class Containers extends React.Component {
             >
                 {_("Commit")}
             </button>,
-            // TODO: stop or start dropdown menu
             <Dropdown key={_(container.ID)} actions={startStopActions} />
         ];
 
@@ -188,12 +258,10 @@ class Containers extends React.Component {
                 document.body.classList.remove('busy-cursor');
             })
             .catch((ex) => {
-                // console.error("Failed to do RemoveContainer call:", ex, JSON.stringify(ex));
                 console.log(ex.toString());
                 if (container.State.Running) {
                     this.containerRemoveErrorMsg = _(ex);
                 } else {
-                    //TODO:
                     this.containerRemoveErrorMsg = _("Container is currently marked as not running, but regular stopping failed.") +
                         " " + _("Error message from Podman:") + " '" + ex;
                 }
@@ -218,7 +286,6 @@ class Containers extends React.Component {
     }
 
     handleForceRemoveContainer() {
-        //TODO: style cursor
         document.body.classList.add('busy-cursor');
         this.handleSetWaitCursor();
         const id = this.state.containerWillDelete ? this.state.containerWillDelete.ID : "";
@@ -243,12 +310,12 @@ class Containers extends React.Component {
         const columnTitles = [_("Name"), _("Image"), _("Command"), _("CPU"), _("Memory"), _("State")];
         //TODO: emptyCaption
         let emptyCaption = _("No running containers");
-        const renderRow = this.renderRow;
+        // const renderRow = this.renderRow;
         const containersStats = this.props.containersStats;
         //TODO: check filter text
         let filtered = this.props.containers.filter(container => (!this.props.onlyShowRunning || container.State.Running));
         let rows = filtered.map(function (container) {
-            return renderRow(containersStats, container)
+            return this.renderRow(containersStats, container)
         }, this);
         const containerDeleteModal =
             <ContainerDeleteModal

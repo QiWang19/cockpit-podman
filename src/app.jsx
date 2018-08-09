@@ -43,6 +43,7 @@ class Application extends React.Component {
 		this.onChange = this.onChange.bind(this);
 		this.updateContainers = this.updateContainers.bind(this);
 		this.updateImages = this.updateImages.bind(this);
+		this.updateContainerStats = this.updateContainerStats.bind(this);
 	}
 
 	onChange(value) {
@@ -63,6 +64,12 @@ class Application extends React.Component {
 		});
 	}
 
+	updateContainerStats (newContainerStats) {
+		this.setState({
+			containersStats: newContainerStats
+		});
+	}
+
     componentDidMount() {
 		this._asyncRequestVersion = utils.varlinkCall(utils.PODMAN, "io.projectatomic.podman.GetVersion")
 			.then(reply => {
@@ -75,6 +82,9 @@ class Application extends React.Component {
 			.then(reply => {
 				this._asyncRequestImages = null;
 				this.setState({ imagesMeta: reply.images });
+				if (!this.state.imagesMeta) {
+					return;
+				}
 				this.state.imagesMeta.map((img)=>{
 					utils.varlinkCall(utils.PODMAN, "io.projectatomic.podman.InspectImage", JSON.parse('{"name":"' + img.id + '"}'))
 						.then(reply => {
@@ -87,15 +97,17 @@ class Application extends React.Component {
 			})
 			.catch(ex => console.error("Failed to do ListImages call:", ex, JSON.stringify(ex)));
 
-		// this.interval = setInterval(()=>{
 			this._asyncRequestContainers = utils.varlinkCall(utils.PODMAN, "io.projectatomic.podman.ListContainers")
 				.then(reply => {
 					this._asyncRequestContainers = null;
 					this.setState({containersMeta: reply.containers || []});
+					if (!this.state.containersMeta) {
+						return;
+					}
 					this.state.containersMeta.map((container) => {
 						utils.varlinkCall(utils.PODMAN, "io.projectatomic.podman.InspectContainer", JSON.parse('{"name":"' + container.id + '"}'))
 							.then(reply => {
-								const temp_containers = this.state.containers;
+								let temp_containers = this.state.containers;
 								temp_containers.push(JSON.parse(reply.container));
 								this.setState({containers: temp_containers});
 							})
@@ -104,8 +116,9 @@ class Application extends React.Component {
 					this.state.containersMeta.map((container) => {
 						utils.varlinkCall(utils.PODMAN, "io.projectatomic.podman.GetContainerStats", JSON.parse('{"name":"' + container.id + '"}'))
 							.then(reply => {
-								const temp_container_stats = this.state.containersStats;
+								let temp_container_stats = this.state.containersStats;
 								if (reply.container) {
+									console.log(container.id);
 									temp_container_stats[container.id] = reply.container;
 								}
 								this.setState({containersStats: temp_container_stats});
@@ -154,6 +167,7 @@ class Application extends React.Component {
 				containersStats={this.state.containersStats}
 				onlyShowRunning={this.state.onlyShowRunning}
 				updateContainers={this.updateContainers}
+				updateContainerStats={this.updateContainerStats}
 			></Containers>
 
 		return (

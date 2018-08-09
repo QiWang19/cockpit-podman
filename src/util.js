@@ -6,7 +6,8 @@ import cockpit from 'cockpit';
 const encoder = cockpit.utf8_encoder();
 const decoder = cockpit.utf8_decoder(true);
 const _ = cockpit.gettext;
-
+// let channelCreated = false;
+// let channel = null;
 export const PODMAN = { unix: "/run/podman/io.projectatomic.podman" };
 /**
  * Do a varlink call on an existing channel. You must *never* call this
@@ -65,9 +66,16 @@ function varlinkCallError(error) {
  * `varlinkCallChannel()` but allows multiple parallel calls.
  */
 export function varlinkCall(channelOptions, method, parameters) {
-    var channel = cockpit.channel(Object.assign({payload: "stream", binary: true, superuser: "require" }, channelOptions));
+	// if (!channelCreated) {
+		var channel = cockpit.channel(Object.assign({payload: "stream", binary: true, superuser: "require" }, channelOptions));
+		// channelCreated = true;
+	// }
+
 	return varlinkCallChannel(channel, method, parameters).finally(() => {
-		// channel.close()
+		setTimeout(()=>{
+
+			// channel.close()
+		}, 500)
 	});
 }
 
