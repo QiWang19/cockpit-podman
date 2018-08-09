@@ -66,7 +66,35 @@ class Containers extends React.Component {
 
     //TODO
     startContainer (container) {
-        return undefined;
+        document.body.classList.add('busy-cursor');
+        const id = container.ID;
+        utils.varlinkCall(utils.PODMAN, "io.projectatomic.podman.StartContainer", JSON.parse('{"name":"' + id + '"}'))
+            .then(reply => {
+                const idStart = reply.container;
+                console.log(container);
+                // update container info after start
+                // setTimeout(()=> {
+                    utils.varlinkCall(utils.PODMAN, "io.projectatomic.podman.InspectContainer", JSON.parse('{"name":"' + id + '"}'))
+                        .then(reply => {
+                            console.log(idStart);
+                            const newElm = JSON.parse(reply.container)
+                            //replace list with updated info
+                            let oldContainers = this.props.containers;
+                            let idx = oldContainers.findIndex((obj => obj.ID == idStart));
+                            oldContainers[idx] = newElm;
+                            this.props.updateContainers(oldContainers);
+                            document.body.classList.remove('busy-cursor');
+                        })
+                        .catch(ex => console.error("Failed to do InspectContainer call:", ex, JSON.stringify(ex)));
+
+                // }, 1000)
+            })
+            .catch(ex => {
+                console.error("Failed to do StartContainer call:", JSON.stringify(ex))
+                document.body.classList.remove('busy-cursor');
+            });
+        // console.log("start");
+        // return undefined;
     }
 
     //TODO
@@ -84,10 +112,10 @@ class Containers extends React.Component {
         let columns = [
             { name: container.Name, header: true },
             image,
-            container.Config.Cmd.join(" "),
+            container.Config.Cmd ? container.Config.Cmd.join(" ") : "",
             //TODO:i18n
             container.State.Running ? utils.format_cpu_percent(container.HostConfig.CpuPercent) : "",
-            containerStats ? utils.format_memory_and_limit(containerStats.mem_usage, containerStats.mem_limit) : "",
+            container.State.Running && containerStats ? utils.format_memory_and_limit(containerStats.mem_usage, containerStats.mem_limit) : "",
             state,
 
         ];

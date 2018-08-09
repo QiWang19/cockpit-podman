@@ -67,7 +67,7 @@ function varlinkCallError(error) {
 export function varlinkCall(channelOptions, method, parameters) {
     var channel = cockpit.channel(Object.assign({payload: "stream", binary: true, superuser: "require" }, channelOptions));
 	return varlinkCallChannel(channel, method, parameters).finally(() => {
-		channel.close()
+		// channel.close()
 	});
 }
 
