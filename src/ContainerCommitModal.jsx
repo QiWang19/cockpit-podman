@@ -3,23 +3,28 @@ import {Modal, Button} from 'react-bootstrap';
 
 class ContainerCommitModal extends React.Component {
     constructor(props) {
+
         super(props);
         this.state = {
-            command: "",
-            entrypoint: "",
             imageName: "",
             //TODO:
             author:"",
             message: "",
             user: "",
             stopsignal: "",
-            pause: false,
+            command: this.props.containerWillCommit.Config ? this.props.containerWillCommit.Config.Cmd.join(" ") : "",
+            entrypoint: this.props.containerWillCommit.Config ? this.props.containerWillCommit.Config.Entrypoint : "",
+            pause: true,
             setenv: false,
             setonbuild: false,
+            setport: false,
+            setlabel: false,
+            setvolume: false,
             // name: '',
             envs: [{envvar_key: '',envvar_value: ''}],
-            setlabel: false,
             labs:[{labvar_key: '',labvar_value: ''}],
+            ports:[""],
+            volumes:[""],
             onbuild: [{onbuildvar_key: '', onbuildvar_value: ''}]
         };
         this.handleInputChange = this.handleInputChange.bind(this);
@@ -30,9 +35,17 @@ class ContainerCommitModal extends React.Component {
         this.handleLabsInputChange = this.handleLabsInputChange.bind(this);
         this.handleAddLab = this.handleAddLab.bind(this);
         this.handleRemoveLab = this.handleRemoveLab.bind(this);
+        this.handlePortsInputChange = this.handlePortsInputChange.bind(this);
+        this.handleAddPort = this.handleAddPort.bind(this);
+        this.handleRemovePort = this.handleRemovePort.bind(this);
+        this.handleVolumesInputChange = this.handleVolumesInputChange.bind(this);
+        this.handleAddVolume = this.handleAddVolume.bind(this);
+        this.handleRemoveVolume = this.handleRemoveVolume.bind(this);
         this.handleOnbuildsInputChange = this.handleOnbuildsInputChange.bind(this);
         this.handleAddOnbuild = this.handleAddOnbuild.bind(this);
         this.handleRemoveOnbuild = this.handleRemoveOnbuild.bind(this);
+
+
     }
 
     handleEnvsInputChange(idx,evt) {
@@ -57,6 +70,30 @@ class ContainerCommitModal extends React.Component {
         });
 
         this.setState({labs: newLabs});
+    }
+
+    handlePortsInputChange(idx, evt) {
+        const newPorts = this.state.ports.map((port, sidx) => {
+            if(idx !== sidx) return port;
+            console.log(port);
+            console.log(evt.target.value)
+            port = evt.target.value;
+            return port;
+        });
+
+        this.setState({ports: newPorts});
+    }
+
+    handleVolumesInputChange(idx, evt) {
+        const newVolumes = this.state.volumes.map((volume, sidx) => {
+            if(idx !== sidx) return volume;
+            console.log(volume);
+            console.log(evt.target.value)
+            volume = evt.target.value;
+            return volume;
+        });
+
+        this.setState({volumes: newVolumes});
     }
 
     handleOnbuildsInputChange(idx, evt) {
@@ -85,6 +122,22 @@ class ContainerCommitModal extends React.Component {
 
     handleRemoveLab(idx) {
         this.setState({labs: this.state.labs.filter((lab, sidx) => idx !== sidx)});
+    }
+
+    handleAddPort() {
+        this.setState({ ports: this.state.ports.concat([""])});
+    }
+
+    handleRemovePort(idx) {
+        this.setState({ports: this.state.ports.filter((port, sidx) => idx !== sidx)});
+    }
+
+    handleAddVolume() {
+        this.setState({ volumes: this.state.volumes.concat([""])});
+    }
+
+    handleRemoveVolume(idx) {
+        this.setState({volumes: this.state.volumes.filter((vol, sidx) => idx !== sidx)});
     }
 
     handleAddOnbuild() {
@@ -152,6 +205,38 @@ class ContainerCommitModal extends React.Component {
             ))
         let addLabBtn = <button type="button" onClick={this.handleAddLab} className="small">Add Label</button>
 
+        let exposePorts = this.state.ports.map((port, idx) => (
+            <div key={"portvar"+idx} className="form-inline form-group">
+                <div className="form-group">
+                    {/* <label>Name</label> */}
+                    <input type="text" name="labvar_key" className="form-control"
+                        onChange={(evt) => this.handlePortsInputChange(idx, evt)}
+                    />
+                </div>
+                {/* <div className="form-group">
+                    <label>Value</label>
+                    <input type="text" name="labvar_value" className="form-control"
+                        onChange={(evt) => this.handleLabsInputChange(idx, evt)}
+                    />
+                </div> */}
+                <button type="button" onClick={() => this.handleRemovePort(idx)} className="small" disabled={idx===0}>-</button>
+            </div>
+        ))
+        let addPortBtn = <button type="button" onClick={this.handleAddPort} className="small">Add Port</button>
+
+        let vols = this.state.volumes.map((vol, idx) => (
+            <div key={"volvar"+idx} className="form-inline form-group">
+                <div className="form-group">
+                    {/* <label>Name</label> */}
+                    <input type="text" name="labvar_key" className="form-control"
+                        onChange={(evt) => this.handleVolumesInputChange(idx, evt)}
+                    />
+                </div>
+                <button type="button" onClick={() => this.handleRemoveVolume(idx)} className="small" disabled={idx===0}>-</button>
+            </div>
+        ))
+        let addVolumeBtn = <button type="button" onClick={this.handleAddVolume} className="small">Add Volume</button>
+
         let onbuilds =
             this.state.onbuild.map((bud, idx) => (
                 <div key={"onbuildvar"+idx} className="form-inline form-group">
@@ -204,13 +289,13 @@ class ContainerCommitModal extends React.Component {
                             <tr>
                                 <td><label className="control-label" translatable="yes">Command</label></td>
                                 <td colSpan="3">
-                                    <input name="command" className="form-control container-command" type="text" onChange={this.handleInputChange}/>
+                                    <input name="command" className="form-control container-command" type="text" defaultValue={this.props.containerWillCommit.Config ? this.props.containerWillCommit.Config.Cmd.join(" ") : ""} onChange={this.handleInputChange}/>
                                 </td>
                             </tr>
                             <tr>
                                 <td><label className="control-label" translatable="yes">Entrypoint</label></td>
                                 <td colSpan="3">
-                                    <input name="entrypoint" className="form-control container-command" type="text" onChange={this.handleInputChange}/>
+                                    <input name="entrypoint" className="form-control container-command" type="text" defaultValue={this.props.containerWillCommit.Config ? this.props.containerWillCommit.Config.Entrypoint : ""} onChange={this.handleInputChange}/>
                                 </td>
                             </tr>
                             <tr>
@@ -264,6 +349,26 @@ class ContainerCommitModal extends React.Component {
                                     <span>Set container label variables</span>
                                     </label>
                                     {(this.state.setlabel && <div>{labels}{addLabBtn}</div>) }
+                                </td>
+                            </tr>
+                            <tr>
+                                <td><label className="control-label" translatable="yes">Expose Ports</label></td>
+                                <td colSpan="3">
+                                    <label>
+                                    <input name="setport" className="container-port" type="checkbox" onChange={this.handleInputChange}/>
+                                    <span>Set container expose port</span>
+                                    </label>
+                                    {(this.state.setport && <div>{exposePorts}{addPortBtn}</div>) }
+                                </td>
+                            </tr>
+                            <tr>
+                                <td><label className="control-label" translatable="yes">Volume</label></td>
+                                <td colSpan="3">
+                                    <label>
+                                    <input name="setvolume" className="container-port" type="checkbox" onChange={this.handleInputChange}/>
+                                    <span>Set container volume</span>
+                                    </label>
+                                    {(this.state.setvolume && <div>{vols}{addVolumeBtn}</div>) }
                                 </td>
                             </tr>
                             <tr>

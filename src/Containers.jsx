@@ -188,6 +188,7 @@ class Containers extends React.Component {
             containerWillCommit: container,
             setContainerCommitModal: !prevState.setContainerCommitModal
         }));
+        console.log(container);
     }
 
     handleCancelContainerCommitModal() {
@@ -198,15 +199,47 @@ class Containers extends React.Component {
 
     handleContainerCommit(commitMsg) {
         console.log(commitMsg);
-        let name = '"name":"' + this.state.containerWillCommit.ID + '"';
-        let imgName = commitMsg.imageName.trim()=== "" ? "" : '"image_name":"' + commitMsg.imageName.trim() + '"';
-        let author = commitMsg.author.trim()==="" ? "" : '"author":"' + commitMsg.author.trim() + '"';
-        let message = commitMsg.message.trim() === "" ? "" : '"message":"' + commitMsg.message.trim() + '"';
+        let name = '"name":"' + this.state.containerWillCommit.ID + '"' + ",";
+        let imgName = commitMsg.imageName.trim()=== "" ? "" : '"image_name":"' + commitMsg.imageName.trim() + '"'+ ",";
+        let author = commitMsg.author.trim()==="" ? "" : '"author":"' + commitMsg.author.trim() + '"' + + ",";
+        let message = commitMsg.message.trim() === "" ? "" : '"message":"' + commitMsg.message.trim() + '"' + ",";
         let pause = commitMsg.pause ? '"pause":true' : '"pause":false';
-        let commitStr = "{" + name + "," +
-                            imgName + "," +
-                            author + "," +
-                            message + "," +
+        let ports = "";
+        let envs = "";
+        let labels = "";
+        let volumes = "";
+
+        let cmd = '"CMD=' + "'" + '"' + commitMsg.command.trim() + '"' + "'" + '"';
+        let entryPoint = '"ENTRYPOINT=' + "'" + '"' + commitMsg.entrypoint.trim() + '"' + "'" + '"';
+        console.log(cmd);
+        if (!commitMsg.setport) {
+            ports = "";
+        } else {
+            ports = utils.getCommitStr(commitMsg.ports, "EXPOSE");
+            console.log(ports);
+        }
+        if (!commitMsg.setenv) {
+            envs = "";
+        } else {
+            envs = utils.getCommitStr(commitMsg.envs, "ENV");
+            console.log(envs);
+        }
+        if (!commitMsg.setlabel) {
+            labels = "";
+        } else {
+            labels = utils.getCommitStr(commitMsg.labs, "LABEL");
+            console.log(labels);
+        }
+        if (!commitMsg.setvolume) {
+            volumes = "";
+        } else {
+            volumes = utils.getCommitStr(commitMsg.volumes, "VOLUME");
+            console.log(volumes);
+        }
+        let commitStr = "{" + name +
+                            imgName +
+                            author +
+                            message +
                             pause + "}";
         console.log(commitStr);
         utils.varlinkCall(utils.PODMAN, "io.projectatomic.podman.Commit", JSON.parse(commitStr))
