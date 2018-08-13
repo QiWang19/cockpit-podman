@@ -44,6 +44,7 @@ class Application extends React.Component {
 		this.updateContainers = this.updateContainers.bind(this);
 		this.updateImages = this.updateImages.bind(this);
 		this.updateContainerStats = this.updateContainerStats.bind(this);
+		this.updateCommitImage = this.updateCommitImage.bind(this);
 	}
 
 	onChange(value) {
@@ -148,7 +149,13 @@ class Application extends React.Component {
 		if (this._asyncRequestContainers) {
 			this._asyncRequestContainers.cancel();
 		}
-    }
+	}
+
+	updateCommitImage(newImage) {
+		const temp_imgs = this.state.images;
+		temp_imgs.push(newImage);
+		this.setState({images: temp_imgs});
+	}
 
     render() {
 		// console.log(this.state.containers);
@@ -168,6 +175,7 @@ class Application extends React.Component {
 				onlyShowRunning={this.state.onlyShowRunning}
 				updateContainers={this.updateContainers}
 				updateContainerStats={this.updateContainerStats}
+				updateCommitImage={this.updateCommitImage}
 			></Containers>
 
 		return (

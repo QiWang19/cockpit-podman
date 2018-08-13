@@ -5,7 +5,8 @@ class ContainerCommitModal extends React.Component {
     constructor(props) {
         super(props);
         this.state = {
-            // command: "",
+            command: "",
+            entrypoint: "",
             imageName: "",
             //TODO:
             author:"",
@@ -204,6 +205,12 @@ class ContainerCommitModal extends React.Component {
                                 <td><label className="control-label" translatable="yes">Command</label></td>
                                 <td colSpan="3">
                                     <input name="command" className="form-control container-command" type="text" onChange={this.handleInputChange}/>
+                                </td>
+                            </tr>
+                            <tr>
+                                <td><label className="control-label" translatable="yes">Entrypoint</label></td>
+                                <td colSpan="3">
+                                    <input name="entrypoint" className="form-control container-command" type="text" onChange={this.handleInputChange}/>
                                 </td>
                             </tr>
                             <tr>

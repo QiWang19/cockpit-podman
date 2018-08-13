@@ -198,6 +198,41 @@ class Containers extends React.Component {
 
     handleContainerCommit(commitMsg) {
         console.log(commitMsg);
+        let name = '"name":"' + this.state.containerWillCommit.ID + '"';
+        let imgName = commitMsg.imageName.trim()=== "" ? "" : '"image_name":"' + commitMsg.imageName.trim() + '"';
+        let author = commitMsg.author.trim()==="" ? "" : '"author":"' + commitMsg.author.trim() + '"';
+        let message = commitMsg.message.trim() === "" ? "" : '"message":"' + commitMsg.message.trim() + '"';
+        let pause = commitMsg.pause ? '"pause":true' : '"pause":false';
+        let commitStr = "{" + name + "," +
+                            imgName + "," +
+                            author + "," +
+                            message + "," +
+                            pause + "}";
+        console.log(commitStr);
+        utils.varlinkCall(utils.PODMAN, "io.projectatomic.podman.Commit", JSON.parse(commitStr))
+            .then(reply => {
+
+                if (reply.image) {
+                    const imgId = reply.image;
+                    utils.varlinkCall(utils.PODMAN, "io.projectatomic.podman.InspectImage", JSON.parse('{"name":"' + imgId + '"}'))
+                    .then(reply => {
+                        // const temp_imgs = this.state.images;
+                        // temp_imgs.push(JSON.parse(reply.image));
+                        // this.setState({images: temp_imgs});
+                        if (!reply.image) {
+                            return;
+                        }
+                        this.props.updateCommitImage(JSON.parse(reply.image));
+                    })
+                    .catch(ex => console.error("Failed to do InspectImage call:", ex, JSON.stringify(ex)));
+
+                    console.log(reply.image);
+                }
+            })
+            .catch(ex => {
+                console.error("Failed to do Commit call:", ex, JSON.stringify(ex))
+                document.body.classList.remove('busy-cursor');
+            });
         this.setState((prevState) => ({
             setContainerCommitModal: !prevState.setContainerCommitModal
         }));
