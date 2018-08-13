@@ -6,6 +6,7 @@ import Dropdown from './DropdownContainer.jsx';
 import ContainerDeleteModal from './ContainerDeleteModal.jsx';
 import ContainerRemoveErrorModal from './ContainerRemoveErrorModal.jsx';
 import * as utils from './util.js';
+import ContainerCommitModal from './ContainerCommitModal.jsx';
 
 const _ = cockpit.gettext;
 
@@ -15,7 +16,9 @@ class Containers extends React.Component {
         this.state = {
             selectContainerDeleteModal: false,
             setContainerRemoveErrorModal: false,
+            setContainerCommitModal: false,
             containerWillDelete: {},
+            containerWillCommit: {},
             setWaitCursor:"",
         };
         this.renderRow = this.renderRow.bind(this);
@@ -27,6 +30,9 @@ class Containers extends React.Component {
         this.handleRemoveContainer = this.handleRemoveContainer.bind(this);
         this.handleCancelRemoveError = this.handleCancelRemoveError.bind(this);
         this.handleForceRemoveContainer = this.handleForceRemoveContainer.bind(this);
+        this.handleContainerCommitModal = this.handleContainerCommitModal.bind(this);
+        this.handleCancelContainerCommitModal = this.handleCancelContainerCommitModal.bind(this);
+        this.handleContainerCommit = this.handleContainerCommit.bind(this);
     }
 
     navigateToContainer(container) {
@@ -173,6 +179,29 @@ class Containers extends React.Component {
             });
     }
 
+    handleContainerCommitModal(event, container) {
+        console.log("commit");
+        console.log(event.target.attributes.getNamedItem('data-container-id').value)
+        // this.containerCommitId = event.target.attributes.getNamedItem('data-container-id').value;
+        // this.containerCommitName = event.target.attributes.getNamedItem('data-container-name').value;
+        this.setState((prevState) => ({
+            containerWillCommit: container,
+            setContainerCommitModal: !prevState.setContainerCommitModal
+        }));
+    }
+
+    handleCancelContainerCommitModal() {
+        this.setState((prevState) => ({
+            setContainerCommitModal: !prevState.setContainerCommitModal
+        }));
+    }
+
+    handleContainerCommit(commitMsg) {
+        console.log(commitMsg);
+        this.setState((prevState) => ({
+            setContainerCommitModal: !prevState.setContainerCommitModal
+        }));
+    }
 
     renderRow(containersStats, container) {
         const containerStats = containersStats[container.ID] ? containersStats[container.ID] : undefined;
@@ -215,11 +244,14 @@ class Containers extends React.Component {
                 className="btn btn-danger btn-delete pficon pficon-delete"
                 onClick={(event) => this.deleteContainer(container, event)} />,
             <button
+                id="btn-container-commit"
                 key={container.ID + "commit"}
                 className="btn btn-default"
                 disabled={isRunning}
                 data-container-id={container.ID}
+                data-container-name={container.Name}
                 data-toggle="modal" data-target="#container-commit-dialog"
+                onClick={(event) => this.handleContainerCommitModal(event, container)}
             >
                 {_("Commit")}
             </button>,
@@ -339,8 +371,14 @@ class Containers extends React.Component {
                     <Listing.Listing key={"ContainerListing"} title={_("Containers")} columnTitles={columnTitles} emptyCaption={emptyCaption}>
                         {rows}
                     </Listing.Listing>
-                    {containerDeleteModal}
-                    {containerRemoveErrorModal}
+                        {containerDeleteModal}
+                        {containerRemoveErrorModal}
+                    <ContainerCommitModal
+                        setContainerCommitModal={this.state.setContainerCommitModal}
+                        handleContainerCommit={this.handleContainerCommit}
+                        handleCancelContainerCommitModal={this.handleCancelContainerCommitModal}
+                        containerWillCommit={this.state.containerWillCommit}
+                    />
             </div>
         );
     }

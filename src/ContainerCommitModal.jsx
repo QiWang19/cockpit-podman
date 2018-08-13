@@ -1,0 +1,299 @@
+import React from 'react';
+import {Modal, Button} from 'react-bootstrap';
+
+class ContainerCommitModal extends React.Component {
+    constructor(props) {
+        super(props);
+        this.state = {
+            // command: "",
+            imageName: "",
+            //TODO:
+            author:"",
+            message: "",
+            user: "",
+            stopsignal: "",
+            pause: false,
+            setenv: false,
+            setonbuild: false,
+            // name: '',
+            envs: [{envvar_key: '',envvar_value: ''}],
+            setlabel: false,
+            labs:[{labvar_key: '',labvar_value: ''}],
+            onbuild: [{onbuildvar_key: '', onbuildvar_value: ''}]
+        };
+        this.handleInputChange = this.handleInputChange.bind(this);
+        this.handleCommit = this.handleCommit.bind(this);
+        this.handleEnvsInputChange = this.handleEnvsInputChange.bind(this);
+        this.handleAddEnv = this.handleAddEnv.bind(this);
+        this.handleRemoveEnv = this.handleRemoveEnv.bind(this);
+        this.handleLabsInputChange = this.handleLabsInputChange.bind(this);
+        this.handleAddLab = this.handleAddLab.bind(this);
+        this.handleRemoveLab = this.handleRemoveLab.bind(this);
+        this.handleOnbuildsInputChange = this.handleOnbuildsInputChange.bind(this);
+        this.handleAddOnbuild = this.handleAddOnbuild.bind(this);
+        this.handleRemoveOnbuild = this.handleRemoveOnbuild.bind(this);
+    }
+
+    handleEnvsInputChange(idx,evt) {
+        const newEnvs = this.state.envs.map((env, sidx) => {
+            if(idx !== sidx) return env;
+            console.log(env);
+            console.log(evt.target.value)
+            env[evt.target.name]= evt.target.value;
+            return env;
+        });
+
+        this.setState({ envs: newEnvs });
+    }
+
+    handleLabsInputChange(idx, evt) {
+        const newLabs = this.state.labs.map((lab, sidx) => {
+            if(idx !== sidx) return lab;
+            console.log(lab);
+            console.log(evt.target.value)
+            lab[evt.target.name]= evt.target.value;
+            return lab;
+        });
+
+        this.setState({labs: newLabs});
+    }
+
+    handleOnbuildsInputChange(idx, evt) {
+        const newOnbuilds = this.state.onbuild.map((bud, sidx) => {
+            if(idx !== sidx) return bud;
+            console.log(bud);
+            console.log(evt.target.value)
+            bud[evt.target.name]= evt.target.value;
+            return bud;
+        });
+
+        this.setState({onbuild: newOnbuilds});
+    }
+
+    handleAddEnv() {
+        this.setState({ envs: this.state.envs.concat([{envvar_key: '',envvar_value: ''}]) });
+    }
+
+    handleRemoveEnv(idx) {
+        this.setState({ envs: this.state.envs.filter((env, sidx) => idx !== sidx) });
+    }
+
+    handleAddLab() {
+        this.setState({ labs: this.state.labs.concat([{labvar_key: '',labvar_value: ''}])});
+    }
+
+    handleRemoveLab(idx) {
+        this.setState({labs: this.state.labs.filter((lab, sidx) => idx !== sidx)});
+    }
+
+    handleAddOnbuild() {
+        console.log(this.state.onbuild);
+        this.setState({onbuild: this.state.onbuild.concat([{onbuildvar_key: '',onbuildvar_value:''}])});
+    }
+
+    handleRemoveOnbuild(idx) {
+        this.setState({onbuild: this.state.onbuild.filter((bud, sidx) => idx !== sidx)});
+
+    }
+
+    handleInputChange(event) {
+        const target = event.target;
+        const value = target.type === 'checkbox' ? target.checked : target.value;
+        const name = target.name;
+        this.setState({
+            [name]: value
+        });
+    }
+
+    handleCommit() {
+        const commitMsg = this.state;
+        // console.log(this.state);
+        this.props.handleContainerCommit(commitMsg);
+    }
+
+    render() {
+        let environments = this.state.envs.map((env, idx) => (
+                <div key={"envvar"+idx} className="form-inline form-group">
+                    <div className="form-group">
+                        <label>Name</label>
+                        <input type="text" name="envvar_key" className="form-control"
+                            onChange={(evt) => this.handleEnvsInputChange(idx, evt)}
+                        />
+                    </div>
+                    <div className="form-group">
+                        <label>Value</label>
+                        <input type="text" name="envvar_value" className="form-control"
+                            onChange={(evt) => this.handleEnvsInputChange(idx, evt)}
+                        />
+                    </div>
+                        <button type="button" onClick={() => this.handleRemoveEnv(idx)} className="small" disabled={idx===0}>-</button>
+                </div>
+            ))
+        let addEnvBtn = <button type="button" onClick={this.handleAddEnv} className="small">Add Env</button>
+
+        let labels =
+            this.state.labs.map((lab, idx) => (
+                <div key={"labvar"+idx} className="form-inline form-group">
+                    <div className="form-group">
+                        <label>Name</label>
+                        <input type="text" name="labvar_key" className="form-control"
+                            onChange={(evt) => this.handleLabsInputChange(idx, evt)}
+                        />
+                    </div>
+                    <div className="form-group">
+                        <label>Value</label>
+                        <input type="text" name="labvar_value" className="form-control"
+                            onChange={(evt) => this.handleLabsInputChange(idx, evt)}
+                        />
+                    </div>
+                    <button type="button" onClick={() => this.handleRemoveLab(idx)} className="small" disabled={idx===0}>-</button>
+                </div>
+            ))
+        let addLabBtn = <button type="button" onClick={this.handleAddLab} className="small">Add Label</button>
+
+        let onbuilds =
+            this.state.onbuild.map((bud, idx) => (
+                <div key={"onbuildvar"+idx} className="form-inline form-group">
+                    <div className="form-group">
+                        <label>Name</label>
+                        <input type="text" name="onbuildvar_key" className="form-control"
+                            onChange={(evt) => this.handleOnbuildsInputChange(idx, evt)}
+                        />
+                    </div>
+                    <div className="form-group">
+                        <label>Value</label>
+                        <input type="text" name="onbuildvar_value" className="form-control"
+                            onChange={(evt) => this.handleOnbuildsInputChange(idx, evt)}
+                        />
+                    </div>
+                    <button type="button" onClick={() => this.handleRemoveOnbuild(idx)} className="small" disabled={idx===0}>-</button>
+                </div>
+            ))
+        let addOnbuildBtn = <button type="button" onClick={this.handleAddOnbuild} className="small">Add Onbuild</button>
+
+        let commitContent =
+                <div>
+                    <table className="form-table-ct">
+                        <tbody>
+                            <tr>
+                                <td><label className="control-label" translatable="yes">Container Name</label></td>
+                                <td colSpan="3">
+                                    <span className="container-name"/>{this.props.containerWillCommit.Name}
+                                </td>
+                            </tr>
+                            <tr>
+                                <td><label className="control-label" translatable="yes">Image Name</label></td>
+                                <td colSpan="3">
+                                    <input name="imageName" className="form-control container-imageName" type="text" onChange={this.handleInputChange} required="true"/>
+                                </td>
+                            </tr>
+
+                            <tr>
+                                <td><label className="control-label" translatable="yes">Author</label></td>
+                                <td colSpan="3">
+                                    <input name="author" className="form-control container-author" type="text" onChange={this.handleInputChange}/>
+                                </td>
+                            </tr>
+                            <tr>
+                                <td><label className="control-label" translatable="yes">Message</label></td>
+                                <td colSpan="3">
+                                    <input name="message" className="form-control container-message" type="text" onChange={this.handleInputChange}/>
+                                </td>
+                            </tr>
+                            <tr>
+                                <td><label className="control-label" translatable="yes">Command</label></td>
+                                <td colSpan="3">
+                                    <input name="command" className="form-control container-command" type="text" onChange={this.handleInputChange}/>
+                                </td>
+                            </tr>
+                            <tr>
+                                <td><label className="control-label" translatable="yes">User</label></td>
+                                <td colSpan="3">
+                                    <input name="user" className="form-control container-command" type="text" onChange={this.handleInputChange}/>
+                                </td>
+                            </tr>
+                            <tr>
+                                <td><label className="control-label" translatable="yes">Stop Signal</label></td>
+                                <td colSpan="3">
+                                    <input name="stopsignal" className="form-control container-command" type="text" onChange={this.handleInputChange}/>
+                                </td>
+                            </tr>
+                            <tr>
+                                <td><label className="control-label" translatable="yes">working Directory</label></td>
+                                <td colSpan="3">
+                                    <input name="workdir" className="form-control container-command" type="text" onChange={this.handleInputChange}/>
+                                </td>
+                            </tr>
+                            <tr>
+                                <td><label className="control-label" translatable="yes">Pause</label></td>
+                                <td colSpan="3">
+                                    <label>
+                                    <input name="pause" className="container-pause" type="checkbox" onChange={this.handleInputChange}/>
+                                    <span>pause the container</span>
+                                    </label>
+                                    <div className="containers-run-inline"></div>
+                                </td>
+                            </tr>
+                        </tbody>
+                    </table>
+                    {/* TODO: changes VOLUME, EXPOSE */}
+                    <table className="form-table-ct">
+                        <tbody>
+                            <tr>
+                                <td><label className="control-label" translatable="yes">Environment</label></td>
+                                <td colSpan="3">
+                                    <label>
+                                    <input name="setenv" className="container-env" type="checkbox" onChange={this.handleInputChange}/>
+                                    <span>Set container environment variables</span>
+                                    </label>
+                                    {(this.state.setenv && <div>{environments}{addEnvBtn}</div>) }
+                                </td>
+                            </tr>
+                            <tr>
+                                <td><label className="control-label" translatable="yes">Label</label></td>
+                                <td colSpan="3">
+                                    <label>
+                                    <input name="setlabel" className="container-label" type="checkbox" onChange={this.handleInputChange}/>
+                                    <span>Set container label variables</span>
+                                    </label>
+                                    {(this.state.setlabel && <div>{labels}{addLabBtn}</div>) }
+                                </td>
+                            </tr>
+                            <tr>
+                                <td><label className="control-label" translatable="yes">Onbuild</label></td>
+                                <td colSpan="3">
+                                    <label>
+                                    <input name="setonbuild" className="container-label" type="checkbox" onChange={this.handleInputChange}/>
+                                    <span>Set container onbuild variables</span>
+                                    </label>
+                                    {(this.state.setonbuild && <div>{onbuilds}{addOnbuildBtn}</div>) }
+                                </td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>;
+
+        return (
+            <Modal
+                show={this.props.setContainerCommitModal}
+                bsSize="large"
+                aria-labelledby="contained-modal-title-lg"
+            >
+                <Modal.Header>
+                    <Modal.Title id="contained-modal-title-lg">Commit Image</Modal.Title>
+                </Modal.Header>
+                <Modal.Body>
+                    {commitContent}
+
+                </Modal.Body>
+                <Modal.Footer>
+                    <Button onClick={this.props.handleCancelContainerCommitModal}>Close</Button>
+                    <Button bsStyle="primary" onClick={this.handleCommit}>Commit</Button>
+                </Modal.Footer>
+            </Modal>
+        );
+    }
+}
+
+export default ContainerCommitModal;
+

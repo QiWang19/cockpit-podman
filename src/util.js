@@ -74,8 +74,8 @@ export function varlinkCall(channelOptions, method, parameters) {
 	return varlinkCallChannel(channel, method, parameters).finally(() => {
 		setTimeout(()=>{
 
-			// channel.close()
-		}, 500)
+			channel.close()
+		}, 60000)
 	});
 }
 

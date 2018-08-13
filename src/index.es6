@@ -21,6 +21,7 @@
 import React from 'react';
 import ReactDOM from 'react-dom';
 import Application from './app.jsx';
+// import IncorporationForm from './test.jsx';
 import './podman.scss';
 
 document.addEventListener("DOMContentLoaded", function () {
