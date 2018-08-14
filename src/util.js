@@ -138,9 +138,13 @@ export function getCommitStr(arr, cmd) {
 			let v = arr[i].envvar_value;
 			let temp = "";
 			if (i === arr.length - 1) {
-				temp = '"ENV=' + "'" + '"' + k + "=" + v + '"' + "'" + '"';
+				// temp = '"ENV=' + "'" + '"' + k + "=" + v + '"' + "'" + '"';
+				temp = '"ENV=' + "'" + k + "=" + v + "'" + '"';
+
 			} else {
-				temp = '"ENV=' + "'" + '"' + k + "=" + v + '"' + "'" + '"' + ",";
+				// temp = '"ENV=' + "'" + '"' + k + "=" + v + '"' + "'" + '"' + ",";
+
+				temp = '"ENV=' + "'" + k + "=" + v + "'" + '"' + ",";
 			}
 			ret += temp;
 		}
@@ -150,9 +154,13 @@ export function getCommitStr(arr, cmd) {
 			let v = arr[i].labvar_value;
 			let temp = "";
 			if (i === arr.length - 1) {
-				temp = '"LABEL=' + "'" + '"' + k + "=" + v + '"' + "'" + '"';
+				// temp = '"LABEL=' + "'" + '"' + k + "=" + v + '"' + "'" + '"';
+				temp = '"LABEL=' + "'" + k + "=" + v + "'" + '"';
+
 			} else {
-				temp = '"LABEL=' + "'" + '"' + k + "=" + v + '"' + "'" + '"' + ",";
+				// temp = '"LABEL=' + "'" + '"' + k + "=" + v + '"' + "'" + '"' + ",";
+				temp = '"LABEL=' + "'" + k + "=" + v + "'" + '"' + ",";
+
 			}
 			ret += temp;
 		}

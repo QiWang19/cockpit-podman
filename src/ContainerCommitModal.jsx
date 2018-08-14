@@ -3,15 +3,16 @@ import {Modal, Button} from 'react-bootstrap';
 
 class ContainerCommitModal extends React.Component {
     constructor(props) {
-
         super(props);
+
         this.state = {
             imageName: "",
             //TODO:
             author:"",
             message: "",
             user: "",
-            stopsignal: "",
+            stopsignal: this.props.containerWillCommit.Config ? this.props.containerWillCommit.Config.StopSignal : "",
+            workdir: this.props.containerWillCommit.Config ? this.props.containerWillCommit.Config.WorkingDir : "",
             command: this.props.containerWillCommit.Config ? this.props.containerWillCommit.Config.Cmd.join(" ") : "",
             entrypoint: this.props.containerWillCommit.Config ? this.props.containerWillCommit.Config.Entrypoint : "",
             pause: true,
@@ -307,13 +308,13 @@ class ContainerCommitModal extends React.Component {
                             <tr>
                                 <td><label className="control-label" translatable="yes">Stop Signal</label></td>
                                 <td colSpan="3">
-                                    <input name="stopsignal" className="form-control container-command" type="text" onChange={this.handleInputChange}/>
+                                    <input name="stopsignal" className="form-control container-command" type="text" defaultValue={this.props.containerWillCommit.Config ? this.props.containerWillCommit.Config.StopSignal : ""} onChange={this.handleInputChange}/>
                                 </td>
                             </tr>
                             <tr>
                                 <td><label className="control-label" translatable="yes">working Directory</label></td>
                                 <td colSpan="3">
-                                    <input name="workdir" className="form-control container-command" type="text" onChange={this.handleInputChange}/>
+                                    <input name="workdir" className="form-control container-command" type="text" defaultValue={this.props.containerWillCommit.Config ? this.props.containerWillCommit.Config.WorkingDir : ""} onChange={this.handleInputChange}/>
                                 </td>
                             </tr>
                             <tr>

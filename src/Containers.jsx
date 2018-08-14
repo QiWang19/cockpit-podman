@@ -201,16 +201,46 @@ class Containers extends React.Component {
         console.log(commitMsg);
         let name = '"name":"' + this.state.containerWillCommit.ID + '"' + ",";
         let imgName = commitMsg.imageName.trim()=== "" ? "" : '"image_name":"' + commitMsg.imageName.trim() + '"'+ ",";
-        let author = commitMsg.author.trim()==="" ? "" : '"author":"' + commitMsg.author.trim() + '"' + + ",";
+        let author = commitMsg.author.trim()==="" ? "" : '"author":"' + commitMsg.author.trim() + '"' +  ",";
         let message = commitMsg.message.trim() === "" ? "" : '"message":"' + commitMsg.message.trim() + '"' + ",";
         let pause = commitMsg.pause ? '"pause":true' : '"pause":false';
         let ports = "";
         let envs = "";
         let labels = "";
         let volumes = "";
+        //TODO; onbuild
+        //TODO: Users
+        // let userStr = commitMsg.user.trim() === "" ?
+        //     (this.state.containerWillCommit.Config ? this.state.containerWillCommit.Config.StopSignal : "") :
+        //     commitMsg.stopsignal.trim();
 
-        let cmd = '"CMD=' + "'" + '"' + commitMsg.command.trim() + '"' + "'" + '"';
-        let entryPoint = '"ENTRYPOINT=' + "'" + '"' + commitMsg.entrypoint.trim() + '"' + "'" + '"';
+        let workDirStr = commitMsg.workdir.trim() === "" ?
+            (this.state.containerWillCommit.Config ? this.state.containerWillCommit.Config.WorkingDir : "") :
+            commitMsg.workdir.trim();
+        // if (workDirStr === "/") {workDirStr = ""}
+        let workDir = '"WORKDIR=' + "'" + workDirStr + "'" +  '"';
+
+        let stopSigStr = commitMsg.stopsignal.trim() === "" ? (this.state.containerWillCommit.Config ? this.state.containerWillCommit.Config.StopSignal : "") : commitMsg.stopsignal.trim();
+        let stopSignal = '"STOPSIGNAL=' + stopSigStr + '"';
+        //If does't set new command, use original cmd from container
+        let cmdStr = "";
+        if (commitMsg.command.trim() === "") {
+            // this.props.containerWillCommit.Config ? this.props.containerWillCommit.Config.Cmd.join(" ") : "";
+            cmdStr = this.state.containerWillCommit.Config ? this.state.containerWillCommit.Config.Cmd.join(" ") : "";
+        } else {
+            cmdStr = commitMsg.command.trim();
+        }
+        // let cmd = '"CMD=' + "'" + '"' + commitMsg.command.trim() + '"' + "'" + '"';
+        let cmd = '"CMD=' + "'" + cmdStr + "'" + '"';
+
+        let entryPointStr = "";
+        if (commitMsg.entrypoint.trim() === "") {
+            entryPointStr = this.state.containerWillCommit.Config ? this.state.containerWillCommit.Config.Entrypoint : "";
+        } else {
+            entryPointStr = commitMsg.entrypoint.trim();
+        }
+        let entryPoint = '"ENTRYPOINT=' +   "'" +entryPointStr + "'" + '"';
+        console.log(entryPoint);
         console.log(cmd);
         if (!commitMsg.setport) {
             ports = "";
@@ -227,6 +257,7 @@ class Containers extends React.Component {
         if (!commitMsg.setlabel) {
             labels = "";
         } else {
+            //TODO: default null str
             labels = utils.getCommitStr(commitMsg.labs, "LABEL");
             console.log(labels);
         }
@@ -236,10 +267,36 @@ class Containers extends React.Component {
             volumes = utils.getCommitStr(commitMsg.volumes, "VOLUME");
             console.log(volumes);
         }
+
+        let changesStr = '"changes":['
+                                // +
+                            cmd + "," +
+                            entryPoint + "," +
+                            stopSignal + "," +
+                            workDir + ","
+                            ;
+
+        if (ports !== "") {
+            changesStr += ports + ",";
+        }
+        if (envs !== "") {
+            changesStr += envs + ",";
+        }
+        if (volumes !== "") {
+            changesStr += volumes + ",";
+        }
+        if (labels !== "") {
+            changesStr += labels;
+        }
+        changesStr += "],";
+
+        console.log(changesStr);
+
         let commitStr = "{" + name +
                             imgName +
                             author +
                             message +
+                            changesStr +
                             pause + "}";
         console.log(commitStr);
         utils.varlinkCall(utils.PODMAN, "io.projectatomic.podman.Commit", JSON.parse(commitStr))
