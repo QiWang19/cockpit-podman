@@ -198,39 +198,36 @@ class Containers extends React.Component {
     }
 
     handleContainerCommit(commitMsg) {
-        console.log(commitMsg);
+        //get commit data from ContainerCommitModal
         let name = '"name":"' + this.state.containerWillCommit.ID + '"' + ",";
         let imgName = commitMsg.imageName.trim()=== "" ? "" : '"image_name":"' + commitMsg.imageName.trim() + '"'+ ",";
         let author = commitMsg.author.trim()==="" ? "" : '"author":"' + commitMsg.author.trim() + '"' +  ",";
         let message = commitMsg.message.trim() === "" ? "" : '"message":"' + commitMsg.message.trim() + '"' + ",";
         let pause = commitMsg.pause ? '"pause":true' : '"pause":false';
+        let userStr = commitMsg.user.trim() === "" ? "" : commitMsg.user.trim();
         let ports = "";
         let envs = "";
         let labels = "";
         let volumes = "";
-        //TODO; onbuild
-        //TODO: Users
-        // let userStr = commitMsg.user.trim() === "" ?
-        //     (this.state.containerWillCommit.Config ? this.state.containerWillCommit.Config.StopSignal : "") :
-        //     commitMsg.stopsignal.trim();
+        //TODO: onbuild
+
+        let user = '"User=' + userStr + '"';
 
         let workDirStr = commitMsg.workdir.trim() === "" ?
             (this.state.containerWillCommit.Config ? this.state.containerWillCommit.Config.WorkingDir : "") :
             commitMsg.workdir.trim();
-        // if (workDirStr === "/") {workDirStr = ""}
         let workDir = '"WORKDIR=' + "'" + workDirStr + "'" +  '"';
 
+        //If the field is empty , use original cmd from container
         let stopSigStr = commitMsg.stopsignal.trim() === "" ? (this.state.containerWillCommit.Config ? this.state.containerWillCommit.Config.StopSignal : "") : commitMsg.stopsignal.trim();
         let stopSignal = '"STOPSIGNAL=' + stopSigStr + '"';
-        //If does't set new command, use original cmd from container
+
         let cmdStr = "";
         if (commitMsg.command.trim() === "") {
-            // this.props.containerWillCommit.Config ? this.props.containerWillCommit.Config.Cmd.join(" ") : "";
             cmdStr = this.state.containerWillCommit.Config ? this.state.containerWillCommit.Config.Cmd.join(" ") : "";
         } else {
             cmdStr = commitMsg.command.trim();
         }
-        // let cmd = '"CMD=' + "'" + '"' + commitMsg.command.trim() + '"' + "'" + '"';
         let cmd = '"CMD=' + "'" + cmdStr + "'" + '"';
 
         let entryPointStr = "";
@@ -240,8 +237,7 @@ class Containers extends React.Component {
             entryPointStr = commitMsg.entrypoint.trim();
         }
         let entryPoint = '"ENTRYPOINT=' +   "'" +entryPointStr + "'" + '"';
-        console.log(entryPoint);
-        console.log(cmd);
+
         if (!commitMsg.setport) {
             ports = "";
         } else {
@@ -257,7 +253,6 @@ class Containers extends React.Component {
         if (!commitMsg.setlabel) {
             labels = "";
         } else {
-            //TODO: default null str
             labels = utils.getCommitStr(commitMsg.labs, "LABEL");
             console.log(labels);
         }
@@ -267,15 +262,8 @@ class Containers extends React.Component {
             volumes = utils.getCommitStr(commitMsg.volumes, "VOLUME");
             console.log(volumes);
         }
-
-        let changesStr = '"changes":['
-                                // +
-                            cmd + "," +
-                            entryPoint + "," +
-                            stopSignal + "," +
-                            workDir + ","
-                            ;
-
+        //build changes field
+        let changesStr = '"changes":[';
         if (ports !== "") {
             changesStr += ports + ",";
         }
@@ -288,9 +276,13 @@ class Containers extends React.Component {
         if (labels !== "") {
             changesStr += labels;
         }
-        changesStr += "],";
 
-        console.log(changesStr);
+        //build the commit msg string
+        changesStr += cmd + "," +
+                    entryPoint + "," +
+                    stopSignal + "," +
+                    workDir + "," +
+                    user + "],";
 
         let commitStr = "{" + name +
                             imgName +
@@ -299,6 +291,7 @@ class Containers extends React.Component {
                             changesStr +
                             pause + "}";
         console.log(commitStr);
+        //execute the API Commit method
         utils.varlinkCall(utils.PODMAN, "io.projectatomic.podman.Commit", JSON.parse(commitStr))
             .then(reply => {
 
@@ -306,16 +299,12 @@ class Containers extends React.Component {
                     const imgId = reply.image;
                     utils.varlinkCall(utils.PODMAN, "io.projectatomic.podman.InspectImage", JSON.parse('{"name":"' + imgId + '"}'))
                     .then(reply => {
-                        // const temp_imgs = this.state.images;
-                        // temp_imgs.push(JSON.parse(reply.image));
-                        // this.setState({images: temp_imgs});
                         if (!reply.image) {
                             return;
                         }
                         this.props.updateCommitImage(JSON.parse(reply.image));
                     })
                     .catch(ex => console.error("Failed to do InspectImage call:", ex, JSON.stringify(ex)));
-
                     console.log(reply.image);
                 }
             })
@@ -358,7 +347,6 @@ class Containers extends React.Component {
 
         startStopActions.push({
             label: _("Restart"),
-            // onActivate: this.restartContainer,
             onActivate: () => this.restartContainer(container, undefined),
             disabled: !isRunning
         });
