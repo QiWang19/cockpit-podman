@@ -4,10 +4,8 @@ import {Modal, Button} from 'react-bootstrap';
 class ContainerCommitModal extends React.Component {
     constructor(props) {
         super(props);
-
-        this.state = {
+        this.initialState = {
             imageName: "",
-            //TODO:
             author:"",
             message: "",
             user: "",
@@ -26,8 +24,10 @@ class ContainerCommitModal extends React.Component {
             labs:[{labvar_key: '',labvar_value: ''}],
             ports:[""],
             volumes:[""],
-            onbuild: [{onbuildvar_key: '', onbuildvar_value: ''}]
+            //TODO:onbuild
+            onbuild: [""]
         };
+        this.state = this.initialState;
         this.handleInputChange = this.handleInputChange.bind(this);
         this.handleCommit = this.handleCommit.bind(this);
         this.handleEnvsInputChange = this.handleEnvsInputChange.bind(this);
@@ -102,7 +102,8 @@ class ContainerCommitModal extends React.Component {
             if(idx !== sidx) return bud;
             console.log(bud);
             console.log(evt.target.value)
-            bud[evt.target.name]= evt.target.value;
+            // bud[evt.target.name]= evt.target.value;
+            bud = evt.target.value;
             return bud;
         });
 
@@ -164,6 +165,7 @@ class ContainerCommitModal extends React.Component {
         const commitMsg = this.state;
         // console.log(this.state);
         this.props.handleContainerCommit(commitMsg);
+        this.setState(this.initialState);
     }
 
     render() {
@@ -242,17 +244,17 @@ class ContainerCommitModal extends React.Component {
             this.state.onbuild.map((bud, idx) => (
                 <div key={"onbuildvar"+idx} className="form-inline form-group">
                     <div className="form-group">
-                        <label>Name</label>
+                        {/* <label>Name</label> */}
                         <input type="text" name="onbuildvar_key" className="form-control"
                             onChange={(evt) => this.handleOnbuildsInputChange(idx, evt)}
                         />
                     </div>
-                    <div className="form-group">
+                    {/* <div className="form-group">
                         <label>Value</label>
                         <input type="text" name="onbuildvar_value" className="form-control"
                             onChange={(evt) => this.handleOnbuildsInputChange(idx, evt)}
                         />
-                    </div>
+                    </div> */}
                     <button type="button" onClick={() => this.handleRemoveOnbuild(idx)} className="small" disabled={idx===0}>-</button>
                 </div>
             ))
