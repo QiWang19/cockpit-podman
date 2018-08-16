@@ -230,7 +230,7 @@ class ContainerCommitModal extends React.Component {
             <div key={"portvar"+idx} className="form-inline form-group">
                 <div className="form-group">
                     {/* <label>Name</label> */}
-                    <input type="text" name="labvar_key" className="form-control"
+                    <input type="text" name="labvar_key" className="form-control-commit"
                         onChange={(evt) => this.handlePortsInputChange(idx, evt)}
                     />
                 </div>
@@ -248,7 +248,7 @@ class ContainerCommitModal extends React.Component {
         let vols = this.state.volumes.map((vol, idx) => (
             <div key={"volvar"+idx} className="form-inline form-group">
                 <div className="form-group">
-                    <input type="text" name="labvar_key" className="form-control"
+                    <input type="text" name="labvar_key" className="form-control-commit"
                         onChange={(evt) => this.handleVolumesInputChange(idx, evt)}
                     />
                 </div>
@@ -262,7 +262,7 @@ class ContainerCommitModal extends React.Component {
                 <div key={"onbuildvar"+idx} className="form-inline form-group">
                     <div className="form-group">
                         {/* <label>Name</label> */}
-                        <input type="text" name="onbuildvar_key" className="form-control"
+                        <input type="text" name="onbuildvar_key" className="form-control-commit"
                             onChange={(evt) => this.handleOnbuildsInputChange(idx, evt)}
                         />
                     </div>
@@ -296,50 +296,50 @@ class ContainerCommitModal extends React.Component {
                             <tr>
                                 <td><label className="control-label" translatable="yes">Image Name</label></td>
                                 <td colSpan="3">
-                                    <input name="imageName" className="form-control container-imageName" type="text" onChange={this.handleInputChange} required="true"/>
+                                    <input name="imageName" className="form-control-commit container-imageName" type="text" onChange={this.handleInputChange} required="true"/>
                                 </td>
                             </tr>
 
                             <tr>
                                 <td><label className="control-label" translatable="yes">Author</label></td>
                                 <td colSpan="3">
-                                    <input name="author" className="form-control container-author" type="text" onChange={this.handleInputChange}/>
+                                    <input name="author" className="form-control-commit container-author" type="text" onChange={this.handleInputChange}/>
                                 </td>
                             </tr>
                             <tr>
                                 <td><label className="control-label" translatable="yes">Message</label></td>
                                 <td colSpan="3">
-                                    <input name="message" className="form-control container-message" type="text" onChange={this.handleInputChange}/>
+                                    <input name="message" className="form-control-commit container-message" type="text" onChange={this.handleInputChange}/>
                                 </td>
                             </tr>
                             <tr>
                                 <td><label className="control-label" translatable="yes">Command</label></td>
                                 <td colSpan="3">
-                                    <input name="command" className="form-control container-command" type="text" defaultValue={this.props.containerWillCommit.Config ? this.props.containerWillCommit.Config.Cmd.join(" ") : ""} onChange={this.handleInputChange}/>
+                                    <input name="command" className="form-control-commit container-command" type="text" defaultValue={this.props.containerWillCommit.Config ? this.props.containerWillCommit.Config.Cmd.join(" ") : ""} onChange={this.handleInputChange}/>
                                 </td>
                             </tr>
                             <tr>
                                 <td><label className="control-label" translatable="yes">Entrypoint</label></td>
                                 <td colSpan="3">
-                                    <input name="entrypoint" className="form-control container-command" type="text" defaultValue={this.props.containerWillCommit.Config ? this.props.containerWillCommit.Config.Entrypoint : ""} onChange={this.handleInputChange}/>
+                                    <input name="entrypoint" className="form-control-commit container-command" type="text" defaultValue={this.props.containerWillCommit.Config ? this.props.containerWillCommit.Config.Entrypoint : ""} onChange={this.handleInputChange}/>
                                 </td>
                             </tr>
                             <tr>
                                 <td><label className="control-label" translatable="yes">User</label></td>
                                 <td colSpan="3">
-                                    <input name="user" className="form-control container-command" type="text" onChange={this.handleInputChange}/>
+                                    <input name="user" className="form-control-commit container-command" type="text" onChange={this.handleInputChange}/>
                                 </td>
                             </tr>
                             <tr>
                                 <td><label className="control-label" translatable="yes">Stop Signal</label></td>
                                 <td colSpan="3">
-                                    <input name="stopsignal" className="form-control container-command" type="text" defaultValue={this.props.containerWillCommit.Config ? this.props.containerWillCommit.Config.StopSignal : ""} onChange={this.handleInputChange}/>
+                                    <input name="stopsignal" className="form-control-commit container-command" type="text" defaultValue={this.props.containerWillCommit.Config ? this.props.containerWillCommit.Config.StopSignal : ""} onChange={this.handleInputChange}/>
                                 </td>
                             </tr>
                             <tr>
                                 <td><label className="control-label" translatable="yes">working Directory</label></td>
                                 <td colSpan="3">
-                                    <input name="workdir" className="form-control container-command" type="text" defaultValue={this.props.containerWillCommit.Config ? this.props.containerWillCommit.Config.WorkingDir : ""} onChange={this.handleInputChange}/>
+                                    <input name="workdir" className="form-control-commit container-command" type="text" defaultValue={this.props.containerWillCommit.Config ? this.props.containerWillCommit.Config.WorkingDir : ""} onChange={this.handleInputChange}/>
                                 </td>
                             </tr>
                             <tr>

@@ -6,6 +6,8 @@ import ContainersRunImageModal from './ContainersRunImageModal.jsx';
 import ImageSecurity from './ImageSecurity.jsx';
 import ModalExample from './ImageDeleteModal.jsx';
 import ImageRemoveErrorModal from './ImageRemoveErrorModal.jsx';
+import ImageSearchModal from './ImageSearchModal.jsx';
+
 import * as utils from './util.js';
 
 const moment = require('moment');
@@ -22,6 +24,7 @@ class Images extends React.Component {
 			selectImageDeleteModal: false,
 			setImageRemoveErrorModal: false,
 			imageWillDelete: {},
+			setImageSearchModal: false
 		};
 
 		this.vulnerableInfoChanged = this.vulnerableInfoChanged.bind(this);
@@ -175,7 +178,10 @@ class Images extends React.Component {
 	}
 
     handleSearchImageClick() {
-			return undefined;
+			this.setState((prevState) => ({
+				setImageSearchModal: !prevState.imageSearchModal
+			}))
+			// return undefined;
     }
 
     handleCancelRunImage() {
@@ -216,6 +222,12 @@ class Images extends React.Component {
 					imageWillDelete={this.state.imageWillDelete}
 					imageRemoveErrorMsg={this.imageRemoveErrorMsg}
 				></ImageRemoveErrorModal>
+			const imageSearchModal =
+				<ImageSearchModal
+					setImageSearchModal={this.state.setImageSearchModal}
+				>
+
+				</ImageSearchModal>
 
 			return(
 				// <div key={"images"} className="container-fluid" >
@@ -236,6 +248,7 @@ class Images extends React.Component {
 						></ContainersRunImageModal>
 						{imageDeleteModal}
 						{imageRemoveErrorModal}
+						{imageSearchModal}
 				</div>
 			);
     }
