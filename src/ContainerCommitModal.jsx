@@ -25,9 +25,10 @@ class ContainerCommitModal extends React.Component {
             labs:[{labvar_key: '',labvar_value: ''}],
             ports:[""],
             volumes:[""],
-            //TODO:onbuild
             onbuild: [""],
             format:"",
+            selectedFormat: "",
+            onbuildDisabled: true,
         };
         this.state = this.initialState;
         this.handleInputChange = this.handleInputChange.bind(this);
@@ -48,7 +49,7 @@ class ContainerCommitModal extends React.Component {
         this.handleOnbuildsInputChange = this.handleOnbuildsInputChange.bind(this);
         this.handleAddOnbuild = this.handleAddOnbuild.bind(this);
         this.handleRemoveOnbuild = this.handleRemoveOnbuild.bind(this);
-
+        this.handleFormatChange = this.handleFormatChange.bind(this);
 
     }
 
@@ -164,6 +165,15 @@ class ContainerCommitModal extends React.Component {
         });
     }
 
+    handleFormatChange(event) {
+        const selectItem = event.target.value;
+        this.setState({
+            selectedFormat: selectItem,
+            format: selectItem,
+            onbuildDisabled: false
+        })
+    }
+
     handleCommit() {
         const commitMsg = this.state;
         // console.log(this.state);
@@ -260,8 +270,6 @@ class ContainerCommitModal extends React.Component {
                 </div>
             ))
         let addOnbuildBtn = <p align="right"><button type="button" onClick={this.handleAddOnbuild} className="small">Add Onbuild</button></p>
-        let commitFormat = <div className="form-inline form-group"><label className="control-label" translatable="yes">Format<input align="right" name="format" className="form-control container-format" type="text" onChange={this.handleInputChange} required="true"/></label></div>;
-
 
         let commitContent =
                 <div>
@@ -271,6 +279,18 @@ class ContainerCommitModal extends React.Component {
                                 <td><label className="control-label" translatable="yes">Container Name</label></td>
                                 <td colSpan="3">
                                     <span className="container-name"/>{this.props.containerWillCommit.Name}
+                                </td>
+                            </tr>
+                            <tr>
+                                <td><label className="control-label" translatable="yes">Format</label></td>
+                                <td colSpan="3">
+                                    <label htmlFor="format-docker">
+                                    <input type="radio" id="format-docker" value="docker" checked={this.state.selectedFormat === 'docker'} onChange={(event) => this.handleFormatChange(event)}/>
+                                    dokcer</label>
+                                    {/* <span className="container-format"/>{this.props.containerWillCommit.Name} */}
+                                    <label htmlFor="format-oci">
+                                    <input type="radio" id="format-oci" value="oci"  checked={this.state.selectedFormat === 'oci'} onChange={(event) => this.handleFormatChange(event)}/>
+                                    oci</label>
                                 </td>
                             </tr>
                             <tr>
@@ -376,10 +396,10 @@ class ContainerCommitModal extends React.Component {
                                 <td valign="top"><label className="control-label" translatable="yes">Onbuild</label></td>
                                 <td colSpan="3">
                                     <label>
-                                    <input name="setonbuild" className="container-label" type="checkbox" onChange={this.handleInputChange}/>
+                                    <input name="setonbuild" className="container-label" type="checkbox" disabled={this.state.onbuildDisabled} onChange={this.handleInputChange}/>
                                     <span>Set container onbuild variables</span>
                                     </label>
-                                    {(this.state.setonbuild && <div>{commitFormat}{onbuilds}{addOnbuildBtn}</div>) }
+                                    {(this.state.setonbuild && <div>{onbuilds}{addOnbuildBtn}</div>) }
                                 </td>
                             </tr>
                         </tbody>

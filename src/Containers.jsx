@@ -8,8 +8,6 @@ import ContainerRemoveErrorModal from './ContainerRemoveErrorModal.jsx';
 import * as utils from './util.js';
 import ContainerCommitModal from './ContainerCommitModal.jsx';
 
-const path = require("path");
-
 const _ = cockpit.gettext;
 
 class Containers extends React.Component {
@@ -82,7 +80,6 @@ class Containers extends React.Component {
             });
     }
 
-    //TODO
     startContainer (container) {
         document.body.classList.add('busy-cursor');
         const id = container.ID;
@@ -90,8 +87,6 @@ class Containers extends React.Component {
             .then(reply => {
                 const idStart = reply.container;
                 console.log(container);
-                // setTimeout(() => {
-
                     // update container info after start
                     utils.varlinkCall(utils.PODMAN, "io.podman.InspectContainer", JSON.parse('{"name":"' + id + '"}'))
                         .then(reply => {
@@ -123,8 +118,6 @@ class Containers extends React.Component {
                             console.error("Failed to do GetContainerStats call:", ex, JSON.stringify(ex))
                             document.body.classList.remove('busy-cursor');
                         });
-                // }, 500)
-
             })
             .catch(ex => {
                 console.error("Failed to do StartContainer call:", JSON.stringify(ex))
@@ -213,14 +206,12 @@ class Containers extends React.Component {
         let labels = "";
         let volumes = "";
         let onbuilds = "";
-
+        console.log(commitMsg.format);
         let user = '"User=' + userStr + '"';
 
         let workDirStr = commitMsg.workdir.trim() === "" ?
             (this.state.containerWillCommit.Config ? this.state.containerWillCommit.Config.WorkingDir : "") :
             commitMsg.workdir.trim();
-        // if (workDirStr === "/") {workDirStr = "$GOPATH/src/github.com/projectatomic/libpod";}
-        // console.log(workDirStr);
         let workDir = '"WORKDIR=' + "'" + workDirStr + "'" +  '"';
 
         //If the field is empty , use original cmd from container
@@ -377,7 +368,6 @@ class Containers extends React.Component {
                 id="btn-container-commit"
                 key={container.ID + "commit"}
                 className="btn btn-default"
-                disabled={isRunning}
                 data-container-id={container.ID}
                 data-container-name={container.Name}
                 data-toggle="modal" data-target="#container-commit-dialog"
