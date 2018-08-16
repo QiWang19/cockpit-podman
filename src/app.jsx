@@ -72,14 +72,15 @@ class Application extends React.Component {
 	}
 
     componentDidMount() {
-		this._asyncRequestVersion = utils.varlinkCall(utils.PODMAN, "io.projectatomic.podman.GetVersion")
+		this._asyncRequestVersion = utils.varlinkCall(utils.PODMAN, "io.podman.GetVersion")
 			.then(reply => {
 				this._asyncRequestVersion = null;
 				this.setState({ version: reply.version });
+				console.log(this.state.version);
 			})
 			.catch(ex => console.error("Failed to do GetVersion call:", JSON.stringify(ex)));
 
-		this._asyncRequestImages = utils.varlinkCall(utils.PODMAN, "io.projectatomic.podman.ListImages")
+		this._asyncRequestImages = utils.varlinkCall(utils.PODMAN, "io.podman.ListImages")
 			.then(reply => {
 				this._asyncRequestImages = null;
 				this.setState({ imagesMeta: reply.images });
@@ -87,7 +88,7 @@ class Application extends React.Component {
 					return;
 				}
 				this.state.imagesMeta.map((img)=>{
-					utils.varlinkCall(utils.PODMAN, "io.projectatomic.podman.InspectImage", JSON.parse('{"name":"' + img.id + '"}'))
+					utils.varlinkCall(utils.PODMAN, "io.podman.InspectImage", JSON.parse('{"name":"' + img.id + '"}'))
 						.then(reply => {
 							const temp_imgs = this.state.images;
 							temp_imgs.push(JSON.parse(reply.image));
@@ -98,7 +99,7 @@ class Application extends React.Component {
 			})
 			.catch(ex => console.error("Failed to do ListImages call:", ex, JSON.stringify(ex)));
 
-			this._asyncRequestContainers = utils.varlinkCall(utils.PODMAN, "io.projectatomic.podman.ListContainers")
+			this._asyncRequestContainers = utils.varlinkCall(utils.PODMAN, "io.podman.ListContainers")
 				.then(reply => {
 					this._asyncRequestContainers = null;
 					this.setState({containersMeta: reply.containers || []});
@@ -106,7 +107,7 @@ class Application extends React.Component {
 						return;
 					}
 					this.state.containersMeta.map((container) => {
-						utils.varlinkCall(utils.PODMAN, "io.projectatomic.podman.InspectContainer", JSON.parse('{"name":"' + container.id + '"}'))
+						utils.varlinkCall(utils.PODMAN, "io.podman.InspectContainer", JSON.parse('{"name":"' + container.id + '"}'))
 							.then(reply => {
 								let temp_containers = this.state.containers;
 								temp_containers.push(JSON.parse(reply.container));
@@ -115,7 +116,7 @@ class Application extends React.Component {
 							.catch(ex => console.error("Failed to do InspectImage call:", ex, JSON.stringify(ex)));
 					});
 					this.state.containersMeta.map((container) => {
-						utils.varlinkCall(utils.PODMAN, "io.projectatomic.podman.GetContainerStats", JSON.parse('{"name":"' + container.id + '"}'))
+						utils.varlinkCall(utils.PODMAN, "io.podman.GetContainerStats", JSON.parse('{"name":"' + container.id + '"}'))
 							.then(reply => {
 								let temp_container_stats = this.state.containersStats;
 								if (reply.container) {
@@ -158,6 +159,7 @@ class Application extends React.Component {
 	}
 
     render() {
+		console.log(this.state.version);
 		// console.log(this.state.containers);
 		let imageList;
 		let containerList;

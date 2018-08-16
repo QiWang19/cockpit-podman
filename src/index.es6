@@ -26,4 +26,6 @@ import './podman.scss';
 
 document.addEventListener("DOMContentLoaded", function () {
     ReactDOM.render(React.createElement(Application, {}), document.getElementById('app'));
+    // ReactDOM.render(React.createElement(IncorporationForm, {}), document.getElementById('app'));
+
 });

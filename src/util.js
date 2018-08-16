@@ -8,7 +8,7 @@ const decoder = cockpit.utf8_decoder(true);
 const _ = cockpit.gettext;
 // let channelCreated = false;
 // let channel = null;
-export const PODMAN = { unix: "/run/podman/io.projectatomic.podman" };
+export const PODMAN = { unix: "/run/podman/io.podman" };
 /**
  * Do a varlink call on an existing channel. You must *never* call this
  * multiple times in parallel on the same channel! Serialize the calls or use
@@ -122,7 +122,7 @@ export function container_stop(container, timeout) {
 	if (timeout == undefined) {
 		timeout = 10;
 	}
-	varlinkCall(PODMAN, "io.projectatomic.podman.StopContainer", JSON.parse('{"name":"' + id + '","timeout":' + timeout + '}' ))
+	varlinkCall(PODMAN, "io.podman.StopContainer", JSON.parse('{"name":"' + id + '","timeout":' + timeout + '}' ))
 		.then(reply => {
 			console.log(reply.container);
 			return reply.container;
@@ -181,6 +181,16 @@ export function getCommitStr(arr, cmd) {
 				temp = '"VOLUME=' + arr[i] + '"';
 			} else {
 				temp = '"VOLUME=' + arr[i] + '"' + ",";
+			}
+			ret += temp;
+		}
+	} else if (cmd === "ONBUILD") {
+		for (let i = 0; i < arr.length; i++) {
+			let temp = "";
+			if (i === arr.length - 1) {
+				temp = '"ONBUILD=' + arr[i] + '"';
+			} else {
+				temp = '"ONBUILD=' + arr[i] + '"' + ",";
 			}
 			ret += temp;
 		}

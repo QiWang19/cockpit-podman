@@ -2,6 +2,7 @@ import React from 'react';
 import {Modal, Button} from 'react-bootstrap';
 
 class ContainerCommitModal extends React.Component {
+    //TODO:check required field
     constructor(props) {
         super(props);
         this.initialState = {
@@ -25,10 +26,12 @@ class ContainerCommitModal extends React.Component {
             ports:[""],
             volumes:[""],
             //TODO:onbuild
-            onbuild: [""]
+            onbuild: [""],
+            format:"",
         };
         this.state = this.initialState;
         this.handleInputChange = this.handleInputChange.bind(this);
+        this.handleCancel = this.handleCancel.bind(this);
         this.handleCommit = this.handleCommit.bind(this);
         this.handleEnvsInputChange = this.handleEnvsInputChange.bind(this);
         this.handleAddEnv = this.handleAddEnv.bind(this);
@@ -144,7 +147,7 @@ class ContainerCommitModal extends React.Component {
 
     handleAddOnbuild() {
         console.log(this.state.onbuild);
-        this.setState({onbuild: this.state.onbuild.concat([{onbuildvar_key: '',onbuildvar_value:''}])});
+        this.setState({onbuild: this.state.onbuild.concat([""])});
     }
 
     handleRemoveOnbuild(idx) {
@@ -168,45 +171,50 @@ class ContainerCommitModal extends React.Component {
         this.setState(this.initialState);
     }
 
+    handleCancel() {
+        this.props.handleCancelContainerCommitModal();
+        this.setState(this.initialState);
+    }
+
     render() {
         let environments = this.state.envs.map((env, idx) => (
                 <div key={"envvar"+idx} className="form-inline form-group">
                     <div className="form-group">
                         <label>Name</label>
-                        <input type="text" name="envvar_key" className="form-control"
+                        <input type="text" name="envvar_key" className="form-control-half"
                             onChange={(evt) => this.handleEnvsInputChange(idx, evt)}
                         />
                     </div>
                     <div className="form-group">
                         <label>Value</label>
-                        <input type="text" name="envvar_value" className="form-control"
+                        <input type="text" name="envvar_value" className="form-control-half"
                             onChange={(evt) => this.handleEnvsInputChange(idx, evt)}
                         />
                     </div>
                         <button type="button" onClick={() => this.handleRemoveEnv(idx)} className="small" disabled={idx===0}>-</button>
                 </div>
             ))
-        let addEnvBtn = <button type="button" onClick={this.handleAddEnv} className="small">Add Env</button>
+        let addEnvBtn = <p align="right"><button  type="button" onClick={this.handleAddEnv} className="small">Add Env</button></p>
 
         let labels =
             this.state.labs.map((lab, idx) => (
                 <div key={"labvar"+idx} className="form-inline form-group">
                     <div className="form-group">
                         <label>Name</label>
-                        <input type="text" name="labvar_key" className="form-control"
+                        <input type="text" name="labvar_key" className="form-control-half"
                             onChange={(evt) => this.handleLabsInputChange(idx, evt)}
                         />
                     </div>
                     <div className="form-group">
                         <label>Value</label>
-                        <input type="text" name="labvar_value" className="form-control"
+                        <input type="text" name="labvar_value" className="form-control-half"
                             onChange={(evt) => this.handleLabsInputChange(idx, evt)}
                         />
                     </div>
                     <button type="button" onClick={() => this.handleRemoveLab(idx)} className="small" disabled={idx===0}>-</button>
                 </div>
             ))
-        let addLabBtn = <button type="button" onClick={this.handleAddLab} className="small">Add Label</button>
+        let addLabBtn = <p align="right"><button type="button" onClick={this.handleAddLab} className="small">Add Label</button></p>
 
         let exposePorts = this.state.ports.map((port, idx) => (
             <div key={"portvar"+idx} className="form-inline form-group">
@@ -225,12 +233,11 @@ class ContainerCommitModal extends React.Component {
                 <button type="button" onClick={() => this.handleRemovePort(idx)} className="small" disabled={idx===0}>-</button>
             </div>
         ))
-        let addPortBtn = <button type="button" onClick={this.handleAddPort} className="small">Add Port</button>
+        let addPortBtn = <p align="right"><button type="button" onClick={this.handleAddPort} className="small">Add Port</button></p>
 
         let vols = this.state.volumes.map((vol, idx) => (
             <div key={"volvar"+idx} className="form-inline form-group">
                 <div className="form-group">
-                    {/* <label>Name</label> */}
                     <input type="text" name="labvar_key" className="form-control"
                         onChange={(evt) => this.handleVolumesInputChange(idx, evt)}
                     />
@@ -238,7 +245,7 @@ class ContainerCommitModal extends React.Component {
                 <button type="button" onClick={() => this.handleRemoveVolume(idx)} className="small" disabled={idx===0}>-</button>
             </div>
         ))
-        let addVolumeBtn = <button type="button" onClick={this.handleAddVolume} className="small">Add Volume</button>
+        let addVolumeBtn = <p align="right"><button type="button" onClick={this.handleAddVolume} className="small">Add Volume</button></p>
 
         let onbuilds =
             this.state.onbuild.map((bud, idx) => (
@@ -249,16 +256,12 @@ class ContainerCommitModal extends React.Component {
                             onChange={(evt) => this.handleOnbuildsInputChange(idx, evt)}
                         />
                     </div>
-                    {/* <div className="form-group">
-                        <label>Value</label>
-                        <input type="text" name="onbuildvar_value" className="form-control"
-                            onChange={(evt) => this.handleOnbuildsInputChange(idx, evt)}
-                        />
-                    </div> */}
                     <button type="button" onClick={() => this.handleRemoveOnbuild(idx)} className="small" disabled={idx===0}>-</button>
                 </div>
             ))
-        let addOnbuildBtn = <button type="button" onClick={this.handleAddOnbuild} className="small">Add Onbuild</button>
+        let addOnbuildBtn = <p align="right"><button type="button" onClick={this.handleAddOnbuild} className="small">Add Onbuild</button></p>
+        let commitFormat = <div className="form-inline form-group"><label className="control-label" translatable="yes">Format<input align="right" name="format" className="form-control container-format" type="text" onChange={this.handleInputChange} required="true"/></label></div>;
+
 
         let commitContent =
                 <div>
@@ -323,19 +326,14 @@ class ContainerCommitModal extends React.Component {
                                 <td><label className="control-label" translatable="yes">Pause</label></td>
                                 <td colSpan="3">
                                     <label>
-                                    <input name="pause" className="container-pause" type="checkbox" onChange={this.handleInputChange}/>
+                                    <input name="pause" className="container-pause" type="checkbox" defaultChecked onChange={this.handleInputChange}/>
                                     <span>pause the container</span>
                                     </label>
                                     <div className="containers-run-inline"></div>
                                 </td>
                             </tr>
-                        </tbody>
-                    </table>
-                    {/* TODO: changes VOLUME, EXPOSE */}
-                    <table className="form-table-ct">
-                        <tbody>
                             <tr>
-                                <td><label className="control-label" translatable="yes">Environment</label></td>
+                                <td valign="top"><label className="control-label" translatable="yes">Environment</label></td>
                                 <td colSpan="3">
                                     <label>
                                     <input name="setenv" className="container-env" type="checkbox" onChange={this.handleInputChange}/>
@@ -355,7 +353,7 @@ class ContainerCommitModal extends React.Component {
                                 </td>
                             </tr>
                             <tr>
-                                <td><label className="control-label" translatable="yes">Expose Ports</label></td>
+                                <td valign="top"><label className="control-label" translatable="yes">Expose Ports</label></td>
                                 <td colSpan="3">
                                     <label>
                                     <input name="setport" className="container-port" type="checkbox" onChange={this.handleInputChange}/>
@@ -365,7 +363,7 @@ class ContainerCommitModal extends React.Component {
                                 </td>
                             </tr>
                             <tr>
-                                <td><label className="control-label" translatable="yes">Volume</label></td>
+                                <td valign="top"><label className="control-label" translatable="yes">Volume</label></td>
                                 <td colSpan="3">
                                     <label>
                                     <input name="setvolume" className="container-port" type="checkbox" onChange={this.handleInputChange}/>
@@ -375,13 +373,13 @@ class ContainerCommitModal extends React.Component {
                                 </td>
                             </tr>
                             <tr>
-                                <td><label className="control-label" translatable="yes">Onbuild</label></td>
+                                <td valign="top"><label className="control-label" translatable="yes">Onbuild</label></td>
                                 <td colSpan="3">
                                     <label>
                                     <input name="setonbuild" className="container-label" type="checkbox" onChange={this.handleInputChange}/>
                                     <span>Set container onbuild variables</span>
                                     </label>
-                                    {(this.state.setonbuild && <div>{onbuilds}{addOnbuildBtn}</div>) }
+                                    {(this.state.setonbuild && <div>{commitFormat}{onbuilds}{addOnbuildBtn}</div>) }
                                 </td>
                             </tr>
                         </tbody>
@@ -402,7 +400,7 @@ class ContainerCommitModal extends React.Component {
 
                 </Modal.Body>
                 <Modal.Footer>
-                    <Button onClick={this.props.handleCancelContainerCommitModal}>Close</Button>
+                    <Button onClick={this.handleCancel}>Close</Button>
                     <Button bsStyle="primary" onClick={this.handleCommit}>Commit</Button>
                 </Modal.Footer>
             </Modal>

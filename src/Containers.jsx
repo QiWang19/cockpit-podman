@@ -8,6 +8,8 @@ import ContainerRemoveErrorModal from './ContainerRemoveErrorModal.jsx';
 import * as utils from './util.js';
 import ContainerCommitModal from './ContainerCommitModal.jsx';
 
+const path = require("path");
+
 const _ = cockpit.gettext;
 
 class Containers extends React.Component {
@@ -54,11 +56,11 @@ class Containers extends React.Component {
         if (!timeout) {
             timeout = 10;
         }
-        utils.varlinkCall(utils.PODMAN, "io.projectatomic.podman.StopContainer", JSON.parse('{"name":"' + id + '","timeout":' + timeout + '}' ))
+        utils.varlinkCall(utils.PODMAN, "io.podman.StopContainer", JSON.parse('{"name":"' + id + '","timeout":' + timeout + '}' ))
             .then(reply => {
                 const idStop = reply.container;
                 //update container info after stop
-                utils.varlinkCall(utils.PODMAN, "io.projectatomic.podman.InspectContainer", JSON.parse('{"name":"' + idStop + '"}'))
+                utils.varlinkCall(utils.PODMAN, "io.podman.InspectContainer", JSON.parse('{"name":"' + idStop + '"}'))
                     .then(reply => {
                         const newElm = JSON.parse(reply.container)
                         //replace list with updated info
@@ -84,14 +86,14 @@ class Containers extends React.Component {
     startContainer (container) {
         document.body.classList.add('busy-cursor');
         const id = container.ID;
-        utils.varlinkCall(utils.PODMAN, "io.projectatomic.podman.StartContainer", JSON.parse('{"name":"' + id + '"}'))
+        utils.varlinkCall(utils.PODMAN, "io.podman.StartContainer", JSON.parse('{"name":"' + id + '"}'))
             .then(reply => {
                 const idStart = reply.container;
                 console.log(container);
                 // setTimeout(() => {
 
                     // update container info after start
-                    utils.varlinkCall(utils.PODMAN, "io.projectatomic.podman.InspectContainer", JSON.parse('{"name":"' + id + '"}'))
+                    utils.varlinkCall(utils.PODMAN, "io.podman.InspectContainer", JSON.parse('{"name":"' + id + '"}'))
                         .then(reply => {
                             console.log(idStart);
                             const newElm = JSON.parse(reply.container)
@@ -105,7 +107,7 @@ class Containers extends React.Component {
                             console.error("Failed to do InspectContainer call:", ex, JSON.stringify(ex))
                             document.body.classList.remove('busy-cursor');
                         });
-                        utils.varlinkCall(utils.PODMAN, "io.projectatomic.podman.GetContainerStats", JSON.parse('{"name":"' + idStart + '"}'))
+                        utils.varlinkCall(utils.PODMAN, "io.podman.GetContainerStats", JSON.parse('{"name":"' + idStart + '"}'))
                         .then(reply => {
                             let temp_container_stats = this.props.containersStats;
                             if (reply.container) {
@@ -136,11 +138,11 @@ class Containers extends React.Component {
             timeout = 10;
         }
         const id = container.ID;
-        utils.varlinkCall(utils.PODMAN, "io.projectatomic.podman.RestartContainer", JSON.parse('{"name":"' + id + '","timeout":' + timeout + '}'))
+        utils.varlinkCall(utils.PODMAN, "io.podman.RestartContainer", JSON.parse('{"name":"' + id + '","timeout":' + timeout + '}'))
             .then(reply => {
                 const idRestart = reply.container;
                 // update container info after start
-                utils.varlinkCall(utils.PODMAN, "io.projectatomic.podman.InspectContainer", JSON.parse('{"name":"' + idRestart + '"}'))
+                utils.varlinkCall(utils.PODMAN, "io.podman.InspectContainer", JSON.parse('{"name":"' + idRestart + '"}'))
                     .then(reply => {
                         const newElm = JSON.parse(reply.container)
                         //replace list with updated info
@@ -155,7 +157,7 @@ class Containers extends React.Component {
                         document.body.classList.remove('busy-cursor');
 
                     });
-                utils.varlinkCall(utils.PODMAN, "io.projectatomic.podman.GetContainerStats", JSON.parse('{"name":"' + idRestart + '"}'))
+                utils.varlinkCall(utils.PODMAN, "io.podman.GetContainerStats", JSON.parse('{"name":"' + idRestart + '"}'))
                     .then(reply => {
                         let temp_container_stats = this.props.containersStats;
                         if (reply.container) {
@@ -205,17 +207,20 @@ class Containers extends React.Component {
         let message = commitMsg.message.trim() === "" ? "" : '"message":"' + commitMsg.message.trim() + '"' + ",";
         let pause = commitMsg.pause ? '"pause":true' : '"pause":false';
         let userStr = commitMsg.user.trim() === "" ? "" : commitMsg.user.trim();
+        let format = commitMsg.setonbuild ? '"format":"' + commitMsg.format.trim() + '"' + "," : "" ;
         let ports = "";
         let envs = "";
         let labels = "";
         let volumes = "";
-        //TODO: onbuild
+        let onbuilds = "";
 
         let user = '"User=' + userStr + '"';
 
         let workDirStr = commitMsg.workdir.trim() === "" ?
             (this.state.containerWillCommit.Config ? this.state.containerWillCommit.Config.WorkingDir : "") :
             commitMsg.workdir.trim();
+        // if (workDirStr === "/") {workDirStr = "$GOPATH/src/github.com/projectatomic/libpod";}
+        // console.log(workDirStr);
         let workDir = '"WORKDIR=' + "'" + workDirStr + "'" +  '"';
 
         //If the field is empty , use original cmd from container
@@ -228,7 +233,7 @@ class Containers extends React.Component {
         } else {
             cmdStr = commitMsg.command.trim();
         }
-        let cmd = '"CMD=' + "'" + cmdStr + "'" + '"';
+        let cmd = '"CMD=' + cmdStr + '"';
 
         let entryPointStr = "";
         if (commitMsg.entrypoint.trim() === "") {
@@ -236,7 +241,7 @@ class Containers extends React.Component {
         } else {
             entryPointStr = commitMsg.entrypoint.trim();
         }
-        let entryPoint = '"ENTRYPOINT=' +   "'" +entryPointStr + "'" + '"';
+        let entryPoint = '"ENTRYPOINT=' + entryPointStr + '"';
 
         if (!commitMsg.setport) {
             ports = "";
@@ -262,6 +267,12 @@ class Containers extends React.Component {
             volumes = utils.getCommitStr(commitMsg.volumes, "VOLUME");
             console.log(volumes);
         }
+        if (!commitMsg.setonbuild) {
+            onbuilds = "";
+        } else {
+            onbuilds = utils.getCommitStr(commitMsg.onbuild, "ONBUILD");
+            console.log(onbuilds);
+        }
         //build changes field
         let changesStr = '"changes":[';
         if (ports !== "") {
@@ -273,15 +284,20 @@ class Containers extends React.Component {
         if (volumes !== "") {
             changesStr += volumes + ",";
         }
+        if (onbuilds !== "") {
+            changesStr += onbuilds + ",";
+        }
         if (labels !== "") {
-            changesStr += labels;
+            changesStr += labels + ",";
+        }
+        if (workDirStr !== "/" && workDirStr !== "") {
+            changesStr += workDir + ",";
         }
 
         //build the commit msg string
         changesStr += cmd + "," +
                     entryPoint + "," +
                     stopSignal + "," +
-                    workDir + "," +
                     user + "],";
 
         let commitStr = "{" + name +
@@ -289,15 +305,16 @@ class Containers extends React.Component {
                             author +
                             message +
                             changesStr +
+                            format +
                             pause + "}";
         console.log(commitStr);
         //execute the API Commit method
-        utils.varlinkCall(utils.PODMAN, "io.projectatomic.podman.Commit", JSON.parse(commitStr))
+        utils.varlinkCall(utils.PODMAN, "io.podman.Commit", JSON.parse(commitStr))
             .then(reply => {
 
                 if (reply.image) {
                     const imgId = reply.image;
-                    utils.varlinkCall(utils.PODMAN, "io.projectatomic.podman.InspectImage", JSON.parse('{"name":"' + imgId + '"}'))
+                    utils.varlinkCall(utils.PODMAN, "io.podman.InspectImage", JSON.parse('{"name":"' + imgId + '"}'))
                     .then(reply => {
                         if (!reply.image) {
                             return;
@@ -394,7 +411,7 @@ class Containers extends React.Component {
         this.setState({
             selectContainerDeleteModal: false
         })
-        utils.varlinkCall(utils.PODMAN, "io.projectatomic.podman.RemoveContainer", JSON.parse('{"name":"' + id + '"}'))
+        utils.varlinkCall(utils.PODMAN, "io.podman.RemoveContainer", JSON.parse('{"name":"' + id + '"}'))
             .then((reply) => {
                 const idDel = reply.container ? reply.container : "";
                 const oldContainers = this.props.containers;
@@ -434,7 +451,7 @@ class Containers extends React.Component {
         document.body.classList.add('busy-cursor');
         this.handleSetWaitCursor();
         const id = this.state.containerWillDelete ? this.state.containerWillDelete.ID : "";
-        utils.varlinkCall(utils.PODMAN, "io.projectatomic.podman.RemoveContainer", JSON.parse('{"name":"' + id + '","force": true }'))
+        utils.varlinkCall(utils.PODMAN, "io.podman.RemoveContainer", JSON.parse('{"name":"' + id + '","force": true }'))
         .then(reply => {
             this.setState({
                 setContainerRemoveErrorModal: false
