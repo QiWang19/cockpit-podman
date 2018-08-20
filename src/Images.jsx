@@ -24,7 +24,10 @@ class Images extends React.Component {
 			selectImageDeleteModal: false,
 			setImageRemoveErrorModal: false,
 			imageWillDelete: {},
-			setImageSearchModal: false
+			setImageSearchModal: false,
+			searchImageRes:[],
+			setSearchImageSpinner: false,
+			searchFinished: false
 		};
 
 		this.vulnerableInfoChanged = this.vulnerableInfoChanged.bind(this);
@@ -36,6 +39,7 @@ class Images extends React.Component {
 		this.handleRemoveImage = this.handleRemoveImage.bind(this);
 		this.handleCancelImageRemoveError = this.handleCancelImageRemoveError.bind(this);
 		this.handleForceRemoveImage = this.handleForceRemoveImage.bind(this);
+		this.doSearchImage = this.doSearchImage.bind(this);
 	}
 
 	vulnerableInfoChanged(event, infos) {
@@ -196,6 +200,31 @@ class Images extends React.Component {
 		});
 	}
 
+	doSearchImage(message) {
+		console.log(message);
+		this.setState({
+			setSearchImageSpinner: true
+		})
+		utils.varlinkCall(utils.PODMAN, "io.podman.SearchImage", JSON.parse('{"name":"' + message + '"}'))
+			.then(reply => {
+				// this.setState({
+				// 	setImageRemoveErrorModal: false
+				// })
+				// const idDel = reply.image ? reply.image : "";
+				// const oldImages = this.props.images;
+				// let newImages = oldImages.filter(elm => elm.Id !== idDel);
+				// this.props.updateImages(newImages);
+				this.setState({
+					searchImageRes: reply.images,
+					searchFinished: true,
+					setSearchImageSpinner: false
+				})
+				console.log(reply.images);
+			})
+			.catch(ex => console.error("Failed to do Search Image call:", JSON.stringify(ex)));
+
+	}
+
     render() {
 			const columnTitles = [ _("Name"), _(''), _("Created"), _("Size"), _('') ];
 			//TODO: emptyCaption = _("No Images");
@@ -225,6 +254,10 @@ class Images extends React.Component {
 			const imageSearchModal =
 				<ImageSearchModal
 					setImageSearchModal={this.state.setImageSearchModal}
+					doSearchImage={this.doSearchImage}
+					searchImageRes={this.state.searchImageRes}
+					setSearchImageSpinner={this.state.setSearchImageSpinner}
+					searchFinished={this.state.searchFinished}
 				>
 
 				</ImageSearchModal>
