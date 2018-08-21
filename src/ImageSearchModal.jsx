@@ -4,16 +4,17 @@ import {Modal, Button} from 'react-bootstrap';
 class ImageSearchModal extends React.Component {
     constructor(props) {
         super(props);
-        this.state = {
-
+        this.initialState = {
             showSearchImageRes: false,
             tagValue: "",
             rowSelected:[],
             tagDisabled: "disabled",
             downloadDisabled: true
         }
+        this.state = this.initialState;
         this.handleOnKeyUp = this.handleOnKeyUp.bind(this);
         this.handleSelectImage = this.handleSelectImage.bind(this);
+        this.cancelSearchImage = this.cancelSearchImage.bind(this);
     }
 
     handleOnKeyUp(event) {
@@ -41,6 +42,10 @@ class ImageSearchModal extends React.Component {
         console.log(image.name);
     }
 
+    cancelSearchImage() {
+        this.props.handleCancelSearchImage();
+        this.setState(this.initialState);
+    }
 
 
     render() {
@@ -91,7 +96,7 @@ class ImageSearchModal extends React.Component {
                 </Modal.Body>
                 <Modal.Footer>
                     <input type="text" id="containers-search-tag" className="form-control" disabled={this.state.tagDisabled} value={this.state.tagValue} placeholder="Tag" />
-                    <Button translatable="yes" onClick={this.props.handleCancelSearchImage}>Cancel</Button>
+                    <Button translatable="yes" onClick={this.cancelSearchImage}>Cancel</Button>
                     <Button translatable="yes" disabled={this.state.downloadDisabled}>Download</Button>
                 </Modal.Footer>
             </Modal>

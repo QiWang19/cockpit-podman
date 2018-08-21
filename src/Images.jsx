@@ -40,6 +40,7 @@ class Images extends React.Component {
 		this.handleCancelImageRemoveError = this.handleCancelImageRemoveError.bind(this);
 		this.handleForceRemoveImage = this.handleForceRemoveImage.bind(this);
 		this.doSearchImage = this.doSearchImage.bind(this);
+		this.handleCancelSearchImage = this.handleCancelSearchImage.bind(this);
 	}
 
 	vulnerableInfoChanged(event, infos) {
@@ -183,7 +184,8 @@ class Images extends React.Component {
 
     handleSearchImageClick() {
 			this.setState((prevState) => ({
-				setImageSearchModal: !prevState.imageSearchModal
+				// searchFinished: false,
+				setImageSearchModal: !prevState.setImageSearchModal
 			}))
 			// return undefined;
     }
@@ -225,6 +227,16 @@ class Images extends React.Component {
 
 	}
 
+	handleCancelSearchImage() {
+		this.setState((prevState) => ({
+			searchImageRes:[],
+			setSearchImageSpinner: false,
+			searchFinished: false,
+			setImageSearchModal: !prevState.setImageSearchModal
+		}))
+	}
+
+
     render() {
 			const columnTitles = [ _("Name"), _(''), _("Created"), _("Size"), _('') ];
 			//TODO: emptyCaption = _("No Images");
@@ -258,6 +270,8 @@ class Images extends React.Component {
 					searchImageRes={this.state.searchImageRes}
 					setSearchImageSpinner={this.state.setSearchImageSpinner}
 					searchFinished={this.state.searchFinished}
+					handleCancelSearchImage = {this.handleCancelSearchImage}
+
 				>
 
 				</ImageSearchModal>
