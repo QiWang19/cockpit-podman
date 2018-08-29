@@ -41,6 +41,7 @@ class Images extends React.Component {
 		this.handleForceRemoveImage = this.handleForceRemoveImage.bind(this);
 		this.doSearchImage = this.doSearchImage.bind(this);
 		this.handleCancelSearchImage = this.handleCancelSearchImage.bind(this);
+		this.handleDownloadImage = this.handleDownloadImage.bind(this);
 	}
 
 	vulnerableInfoChanged(event, infos) {
@@ -236,6 +237,10 @@ class Images extends React.Component {
 		}))
 	}
 
+	handleDownloadImage() {
+		// TODO
+	}
+
 
     render() {
 			const columnTitles = [ _("Name"), _(''), _("Created"), _("Size"), _('') ];
@@ -270,8 +275,8 @@ class Images extends React.Component {
 					searchImageRes={this.state.searchImageRes}
 					setSearchImageSpinner={this.state.setSearchImageSpinner}
 					searchFinished={this.state.searchFinished}
-					handleCancelSearchImage = {this.handleCancelSearchImage}
-
+					handleCancelSearchImage={this.handleCancelSearchImage}
+					handleDownloadImage={this.handleDownloadImage}
 				>
 
 				</ImageSearchModal>

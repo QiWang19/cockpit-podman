@@ -15,6 +15,7 @@ class ImageSearchModal extends React.Component {
         this.handleOnKeyUp = this.handleOnKeyUp.bind(this);
         this.handleSelectImage = this.handleSelectImage.bind(this);
         this.cancelSearchImage = this.cancelSearchImage.bind(this);
+        this.downloadImage = this.downloadImage.bind(this);
     }
 
     handleOnKeyUp(event) {
@@ -47,6 +48,10 @@ class ImageSearchModal extends React.Component {
         this.setState(this.initialState);
     }
 
+    downloadImage() {
+        this.props.handleDownloadImage()
+        // TODO
+    }
 
     render() {
 
@@ -97,7 +102,7 @@ class ImageSearchModal extends React.Component {
                 <Modal.Footer>
                     <input type="text" id="containers-search-tag" className="form-control" disabled={this.state.tagDisabled} value={this.state.tagValue} placeholder="Tag" />
                     <Button translatable="yes" onClick={this.cancelSearchImage}>Cancel</Button>
-                    <Button translatable="yes" disabled={this.state.downloadDisabled}>Download</Button>
+                    <Button translatable="yes" onClick={this.downloadImage} disabled={this.state.downloadDisabled}>Download</Button>
                 </Modal.Footer>
             </Modal>
         )
