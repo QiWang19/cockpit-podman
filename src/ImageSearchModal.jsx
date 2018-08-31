@@ -9,7 +9,8 @@ class ImageSearchModal extends React.Component {
             tagValue: "",
             rowSelected:[],
             tagDisabled: "disabled",
-            downloadDisabled: true
+            downloadDisabled: true,
+            selectedImageName: ""
         }
         this.state = this.initialState;
         this.handleOnKeyUp = this.handleOnKeyUp.bind(this);
@@ -38,9 +39,10 @@ class ImageSearchModal extends React.Component {
             tagValue: "latest",
             rowSelected: temp,
             tagDisabled: "",
-            downloadDisabled: false
+            downloadDisabled: false,
+            selectedImageName: image.name
         })
-        console.log(image.name);
+        // console.log(image.name);
     }
 
     cancelSearchImage() {
@@ -49,7 +51,8 @@ class ImageSearchModal extends React.Component {
     }
 
     downloadImage() {
-        this.props.handleDownloadImage()
+        this.props.handleDownloadImage(this.state.selectedImageName);
+        console.log(this.state.selectedImageName);
         // TODO
     }
 
@@ -100,7 +103,7 @@ class ImageSearchModal extends React.Component {
                     </div>
                 </Modal.Body>
                 <Modal.Footer>
-                    <input type="text" id="containers-search-tag" className="form-control" disabled={this.state.tagDisabled} value={this.state.tagValue} placeholder="Tag" />
+                    <input type="text" id="containers-search-tag" className="form-control" disabled={this.state.tagDisabled} value={this.state.tagValue} placeholder="Tag" readOnly/>
                     <Button translatable="yes" onClick={this.cancelSearchImage}>Cancel</Button>
                     <Button translatable="yes" onClick={this.downloadImage} disabled={this.state.downloadDisabled}>Download</Button>
                 </Modal.Footer>

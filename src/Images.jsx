@@ -102,16 +102,16 @@ class Images extends React.Component {
 	handleForceRemoveImage() {
 		const id = this.state.imageWillDelete ? this.state.imageWillDelete.Id : "";
 		utils.varlinkCall(utils.PODMAN, "io.podman.RemoveImage", JSON.parse('{"name":"' + id + '","force": true }'))
-        .then(reply => {
-            this.setState({
-                setImageRemoveErrorModal: false
+			.then(reply => {
+				this.setState({
+					setImageRemoveErrorModal: false
+				})
+				const idDel = reply.image ? reply.image : "";
+				const oldImages = this.props.images;
+				let newImages = oldImages.filter(elm => elm.Id !== idDel);
+				this.props.updateImages(newImages);
 			})
-            const idDel = reply.image ? reply.image : "";
-            const oldImages = this.props.images;
-			let newImages = oldImages.filter(elm => elm.Id !== idDel);
-			this.props.updateImages(newImages);
-        })
-        .catch(ex => console.error("Failed to do RemoveImageForce call:", JSON.stringify(ex)));
+			.catch(ex => console.error("Failed to do RemoveImageForce call:", JSON.stringify(ex)));
 	}
 
 	renderRow(image) {
@@ -237,8 +237,31 @@ class Images extends React.Component {
 		}))
 	}
 
-	handleDownloadImage() {
+	handleDownloadImage(imageName) {
 		// TODO
+		document.body.classList.add('busy-cursor');
+		utils.varlinkCall(utils.PODMAN, "io.podman.PullImage", {name: imageName})
+			.then((reply) => {
+				const id = reply.id;
+				utils.varlinkCall(utils.PODMAN, "io.podman.InspectImage", {name: id})
+                        .then(reply => {
+							let oldImages = this.props.images;
+                            oldImages.push(JSON.parse(reply.image));
+							this.props.updateImages(oldImages);
+							this.handleCancelSearchImage();
+							document.body.classList.remove('busy-cursor');
+                        })
+                        .catch(ex => {
+							console.error("Failed to do InspectImage call:", ex, JSON.stringify(ex))
+							this.handleCancelSearchImage();
+							document.body.classList.remove('busy-cursor');
+						});
+			})
+			.catch(ex => {
+				console.error("Failed to do PullImage call:", ex, JSON.stringify(ex))
+				this.handleCancelSearchImage();
+				document.body.classList.remove('busy-cursor');
+			})
 	}
 
 
