@@ -25,6 +25,7 @@ class ImageSearchModal extends React.Component {
             return;
         }
         //TODO:no result
+        this.searchValue = event.target.value;
         const message = event.target.value;
         this.props.doSearchImage(message);
     }
@@ -59,23 +60,36 @@ class ImageSearchModal extends React.Component {
     render() {
 
         const searchImageSpinner = <div id="containers-search-image-waiting" className="spinner"></div>;
-        let searchResList = this.props.searchImageRes.map((image, idx) => (
+        let searchResList;
+        let searchResTable;
+        let noResult;
+        let hasResults = true;
+        if (this.props.searchImageRes) {
+            hasResults = true;
+            searchResList = this.props.searchImageRes.map((image, idx) => (
 
-            <tr key={"image" + idx} className={this.state.rowSelected ? this.state.rowSelected[idx] : ""} onClick={(event) => this.handleSelectImage(event, image, idx)}>
-                <td>{image.name}</td>
-                <td>{image.description}</td>
-            </tr>
+                <tr key={"image" + idx} className={this.state.rowSelected ? this.state.rowSelected[idx] : ""} onClick={(event) => this.handleSelectImage(event, image, idx)}>
+                    <td>{image.name}</td>
+                    <td>{image.description}</td>
+                </tr>
 
-        ))
+            ))
 
-        let searchResTable =
-            <div id="containers-search-image-results">
-                <table className="table table-hover">
-                <tbody>
-                    {searchResList}
-                </tbody>
-                </table>
-            </div>;
+            searchResTable =
+                <div id="containers-search-image-results">
+                    <table className="table table-hover">
+                    <tbody>
+                        {searchResList}
+                    </tbody>
+                    </table>
+                </div>;
+        } else {
+            hasResults = false;
+            noResult =
+                <div id="containers-search-image-no-results">
+                    <span>No results for {this.searchValue}</span>
+                </div>
+        }
         return (
 
             <Modal
@@ -97,7 +111,8 @@ class ImageSearchModal extends React.Component {
                                 />
                                 <span className="fa fa-search form-control-feedback containers-search-image-search-icon"></span>
                             </div>
-                            {(this.props.searchFinished && <div>{searchResTable}</div>)}
+                            {!hasResults && <div>{noResult}</div>}
+                            {(hasResults && this.props.searchFinished && <div>{searchResTable}</div>)}
                             {(!this.props.searchFinished && this.props.setSearchImageSpinner && <div>{searchImageSpinner}</div>)}
                         </div>
                     </div>
