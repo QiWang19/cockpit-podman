@@ -7,7 +7,7 @@ class DropdownContainer extends React.Component {
         this.state = {
             show: false,
             title: this.props.actions[0].label
-        }
+        };
 
         this.handleClick = this.handleClick.bind(this);
         this.setShow = this.setShow.bind(this);
@@ -16,7 +16,7 @@ class DropdownContainer extends React.Component {
     setShow() {
         this.setState((prevState) => ({
             show: !prevState.show
-        }))
+        }));
     }
 
     handleClick (props, event) {
@@ -27,11 +27,10 @@ class DropdownContainer extends React.Component {
             action.onActivate();
         this.setState({
             title: action.label
-        })
+        });
     }
+
     render() {
-
-
         const menuItems = this.props.actions.map((action, index) => {
             return (
                 <MenuItem
@@ -40,13 +39,14 @@ class DropdownContainer extends React.Component {
                     data-value={index} tabIndex="0"
                     onClick={(event) => this.handleClick(this.props, event)}
                 >
-                     {action.label}
+                    {action.label}
                 </MenuItem>
             );
-        })
+        });
 
         return (
             <SplitButton
+                className={this.state.title + "-btn"}
                 bsStyle="default"
                 title={this.state.title}
                 data-value="0"

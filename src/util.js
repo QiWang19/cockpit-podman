@@ -6,8 +6,6 @@ import cockpit from 'cockpit';
 const encoder = cockpit.utf8_encoder();
 const decoder = cockpit.utf8_decoder(true);
 const _ = cockpit.gettext;
-// let channelCreated = false;
-// let channel = null;
 export const PODMAN = { unix: "/run/podman/io.podman" };
 /**
  * Do a varlink call on an existing channel. You must *never* call this
@@ -19,46 +17,44 @@ export const PODMAN = { unix: "/run/podman/io.podman" };
  */
 function varlinkCallChannel(channel, method, parameters) {
     return new Promise((resolve, reject) => {
-	function on_close(event, options) {
-		reject(options.problem || options);
-	}
+        function on_close(event, options) {
+            reject(options.problem || options);
+        }
 
-	function on_message(event, data) {
-		channel.removeEventListener("message", on_message);
-		channel.removeEventListener("close", on_close);
+        function on_message(event, data) {
+            channel.removeEventListener("message", on_message);
+            channel.removeEventListener("close", on_close);
 
-		// FIXME: support answer in multiple chunks until null byte
-		if (data[data.length - 1] != 0) {
-		reject("protocol error: expecting terminating 0");
-		return;
-		}
+            // FIXME: support answer in multiple chunks until null byte
+            if (data[data.length - 1] != 0) {
+                reject(new Error("protocol error: expecting terminating 0"));
+                return;
+            }
 
-		var reply = decoder.decode(data.slice(0, -1));
-		var json = JSON.parse(reply);
-		if (json.error) {
-			let msg = varlinkCallError(json);
-			reject(msg);
-		} else if (json.parameters) {
-			// debugging
-			// console.log("varlinkCall", method, "→", JSON.stringify(json.parameters));
-			resolve(json.parameters)
-		} else
-			reject("protocol error: reply has neither parameters nor error: " + reply);
-	}
+            var reply = decoder.decode(data.slice(0, -1));
+            var json = JSON.parse(reply);
+            if (json.error) {
+                let msg = varlinkCallError(json);
+                reject(msg);
+            } else if (json.parameters) {
+                // debugging
+                resolve(json.parameters);
+            } else
+                reject(new Error("protocol error: reply has neither parameters nor error: " + reply));
+        }
 
-	channel.addEventListener("close", on_close);
-	channel.addEventListener("message", on_message);
-	channel.send(encoder.encode(JSON.stringify({ method, parameters: (parameters || {}) })));
-	channel.send([0]); // message separator
-	})
+        channel.addEventListener("close", on_close);
+        channel.addEventListener("message", on_message);
+        channel.send(encoder.encode(JSON.stringify({ method, parameters: (parameters || {}) })));
+        channel.send([0]); // message separator
+    });
 }
 
 function varlinkCallError(error) {
-	let str = "";
-	error.error ? str += error.error.toString() : str;
-	error.parameters.reason ? str += " " + error.parameters.reason.toString() : str;
-	// console.log(str);
-	return str;
+    let str = "";
+    str = error.error ? str + error.error.toString() : str;
+    str = error.parameters ? str + " " + error.parameters.reason.toString() : str;
+    return str;
 }
 
 /**
@@ -66,68 +62,163 @@ function varlinkCallError(error) {
  * `varlinkCallChannel()` but allows multiple parallel calls.
  */
 export function varlinkCall(channelOptions, method, parameters) {
-	// if (!channelCreated) {
-		var channel = cockpit.channel(Object.assign({payload: "stream", binary: true, superuser: "require" }, channelOptions));
-		// channelCreated = true;
-	// }
+    var channel = cockpit.channel(Object.assign({payload: "stream", binary: true, superuser: "require"}, channelOptions));
 
-	return varlinkCallChannel(channel, method, parameters).finally(() => {
-		setTimeout(()=>{
-
-			channel.close()
-		}, 60000)
-	});
+    return varlinkCallChannel(channel, method, parameters).finally(() => {
+        channel.close();
+    });
 }
 
 export function truncate_id(id) {
-	if (!id) {
-		return _("");
-	}
-	return _(id.substr(0, 12));
+    if (!id) {
+        return _("");
+    }
+    return _(id.substr(0, 12));
 }
 
 export function format_cpu_percent(cpuPercent) {
-	if (cpuPercent === undefined || isNaN(cpuPercent)) {
-		return _("");
-	}
-	return _(cpuPercent + "%");
+    if (cpuPercent === undefined || isNaN(cpuPercent)) {
+        return _("");
+    }
+    return _(cpuPercent + "%");
 }
 
 export function format_memory_and_limit(usage, limit) {
-	if (usage === undefined || isNaN(usage))
-		return _("");
+    if (usage === undefined || isNaN(usage))
+        return _("");
 
-	var mtext = "";
-	var units = 1024;
-	var parts;
-	if (limit) {
-		parts = cockpit.format_bytes(limit, units, true);
-		mtext = " / " + parts.join(" ");
-		units = parts[1];
-	}
+    var mtext = "";
+    var units = 1024;
+    var parts;
+    if (limit) {
+        parts = cockpit.format_bytes(limit, units, true);
+        mtext = " / " + parts.join(" ");
+        units = parts[1];
+    }
 
-	if (usage) {
-		parts = cockpit.format_bytes(usage, units, true);
-		if (mtext)
-			return _(parts[0] + mtext);
-		else
-			return _(parts.join(" "));
-	} else {
-		return _("");
-	}
+    if (usage) {
+        parts = cockpit.format_bytes(usage, units, true);
+        if (mtext)
+            return _(parts[0] + mtext);
+        else
+            return _(parts.join(" "));
+    } else {
+        return _("");
+    }
 }
 
 export function container_stop(container, timeout) {
-	const id = container.ID;
-	if (timeout == undefined) {
-		timeout = 10;
-	}
-	varlinkCall(PODMAN, "io.podman.StopContainer", JSON.parse('{"name":"' + id + '","timeout":' + timeout + '}' ))
-		.then(reply => {
-			console.log(reply.container);
-			return reply.container;
-		})
-        .catch(ex => console.error("Failed to do RemoveContainerForce call:", JSON.stringify(ex)));
+    timeout = timeout || 10;
+    varlinkCall(PODMAN, "io.podman.StopContainer", {name: container.ID, timeout: timeout})
+            .then(reply => {
+                return reply.container;
+            })
+            .catch(ex => console.error("Failed to do RemoveContainerForce call:", JSON.stringify(ex)));
+}
+
+export function updateContainers() {
+    let newContainers = [];
+    let newContainersStats = [];
+    return new Promise((resolve, reject) => {
+        varlinkCall(PODMAN, "io.podman.ListContainers")
+                .then(reply => {
+                    let newContainersMeta = reply.containers;
+                    if (!newContainersMeta) {
+                        resolve({newContainers: newContainers, newContainersStats: newContainersStats});
+                        return;
+                    }
+                    const len = newContainersMeta.length;
+                    let inspectRet = [];
+                    newContainersMeta.map((container) => {
+                        let proEle = new Promise((resolve, reject) => {
+                            varlinkCall(PODMAN, "io.podman.InspectContainer", {name: container.id})
+                                    .then(reply => {
+                                        resolve(JSON.parse(reply.container));
+                                    })
+                                    .catch(ex => {
+                                        reject(new Error("Failed to do InspectContainer call:", ex, JSON.stringify(ex)));
+                                    });
+                        });
+                        inspectRet.push(proEle);
+                    });
+                    Promise.all(inspectRet)
+                            .then((inspectRet) => {
+                                let runEle = newContainersMeta.filter((ele) => {
+                                    return ele.status === "running";
+                                });
+                                inspectRet.map((inspectRet) => {
+                                    newContainers.push(inspectRet);
+                                    if (runEle.length === 0 && newContainers.length === len) {
+                                        resolve({newContainers: newContainers, newContainersStats: newContainersStats});
+                                    }
+                                });
+                            })
+                            .catch(ex => {
+                                console.error("Failed to do InspectContainer call:", ex, JSON.stringify(ex));
+                            });
+                    let crtStatsRet = [];
+                    let runCtrArr = newContainersMeta.filter((ele) => {
+                        return ele.status === "running";
+                    }).map((container) => {
+                        let proEle = new Promise((resolve, reject) => {
+                            varlinkCall(PODMAN, "io.podman.GetContainerStats", {name: container.id})
+                                    .then(reply => {
+                                        resolve({ctrId: container.id, ctrStats:reply.container});
+                                    })
+                                    .catch(ex => {
+                                        console.error("Failed to do GetContainerStats call:", ex, JSON.stringify(ex));
+                                        reject(new Error("Failed to do GetContainerStats call:", ex, JSON.stringify(ex)));
+                                    });
+                        });
+                        crtStatsRet.push(proEle);
+                    });
+
+                    Promise.all(crtStatsRet)
+                            .then((crtStatsRet) => {
+                                crtStatsRet.map((crtStatsRet) => {
+                                    newContainersStats[crtStatsRet.ctrId] = crtStatsRet.ctrStats;
+                                    if (newContainers.length === len && Object.keys(newContainersStats).length === runCtrArr.length) {
+                                        resolve({newContainers: newContainers, newContainersStats: newContainersStats});
+                                    }
+                                });
+                            })
+                            .catch(ex => console.error("Failed to do GetContainerStats call:", ex, JSON.stringify(ex)));
+                })
+                .catch(ex => {
+                    console.error("Failed to do ListContainers call:", JSON.stringify(ex), ex.toString());
+                    reject(new Error("Failed to do ListContainers call"));
+                });
+    });
+}
+
+export function updateImages() {
+    let newImages = [];
+    let newImagesMeta = [];
+    return new Promise((resolve, reject) => {
+        varlinkCall(PODMAN, "io.podman.ListImages")
+                .then(reply => {
+                    newImagesMeta = reply.images;
+                    const len = newImagesMeta ? newImagesMeta.length : 0;
+                    if (!newImagesMeta) {
+                        resolve(newImages);
+                        return;
+                    }
+                    newImagesMeta.map((img) => {
+                        varlinkCall(PODMAN, "io.podman.InspectImage", {name: img.id})
+                                .then(reply => {
+                                    newImages.push(JSON.parse(reply.image));
+                                    if (newImages.length === len) {
+                                        resolve(newImages);
+                                    }
+                                })
+                                .catch(ex => console.error("Failed to do InspectImage call:", ex, JSON.stringify(ex)));
+                    });
+                })
+                .catch(ex => {
+                    console.error("Failed to do ListImages call:", ex, JSON.stringify(ex));
+                    reject(new Error("Failed to do ListImages call"));
+                });
+    });
 }
 
 export function getCommitStr(arr, cmd) {

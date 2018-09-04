@@ -1,6 +1,7 @@
-PACKAGE_NAME := $(shell python3 -c "import json; print(json.load(open('package.json'))['name'])")
+# extract name from package.json
+PACKAGE_NAME := $(shell awk '/"name":/ {gsub(/[",]/, "", $$2); print $$2}' package.json)
 RPM_NAME := cockpit-$(PACKAGE_NAME)
-VERSION := $(shell git describe 2>/dev/null || echo 1)
+VERSION := $(shell T=$$(git describe 2>/dev/null) || T=1; echo $$T | tr '-' '.')
 ifeq ($(TEST_OS),)
 TEST_OS = fedora-28
 endif
@@ -138,7 +139,7 @@ bots:
 # checkout Cockpit's test API; this has no API stability guarantee, so check out a stable tag
 # when you start a new project, use the latest relese, and update it from time to time
 test/common:
-	git fetch --depth=1 https://github.com/cockpit-project/cockpit.git 172
+	git fetch --depth=1 https://github.com/cockpit-project/cockpit.git 176
 	git checkout --force FETCH_HEAD -- test/common
 	git reset test/common
 

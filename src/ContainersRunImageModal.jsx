@@ -1,6 +1,6 @@
 import React from 'react';
 import Modal from 'react-modal';
-//TODO
+// TODO
 const ContainersRunImageModal = (props) => {
     return (
         <Modal isOpen={props.show}>
@@ -8,6 +8,6 @@ const ContainersRunImageModal = (props) => {
             <button onClick={props.handleCancelRunImage}>Cancel</button>
         </Modal>
     );
-}
+};
 
 export default ContainersRunImageModal;

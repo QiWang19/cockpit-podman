@@ -1,6 +1,6 @@
 import React from 'react';
 import cockpit from 'cockpit';
-import Select from '../lib/cockpit-components-select.jsx';
+import * as Select from '../lib/cockpit-components-select.jsx';
 const _ = cockpit.gettext;
 
 class ContainerHeader extends React.Component {
@@ -31,7 +31,7 @@ class ContainerHeader extends React.Component {
     }
 
     render() {
-        return(
+        return (
             <div className="content-filter" >
                 <Select.Select id="containers-containers-filter" initial={this.state.filter} onChange={this.handleFilterChange}>
                     <Select.SelectEntry data='all'>{_("Everything")}</Select.SelectEntry>

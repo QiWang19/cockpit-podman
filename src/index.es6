@@ -1,4 +1,3 @@
-/*jshint esversion: 6 */
 /*
  * This file is part of Cockpit.
  *
@@ -21,11 +20,8 @@
 import React from 'react';
 import ReactDOM from 'react-dom';
 import Application from './app.jsx';
-// import IncorporationForm from './test.jsx';
 import './podman.scss';
 
 document.addEventListener("DOMContentLoaded", function () {
     ReactDOM.render(React.createElement(Application, {}), document.getElementById('app'));
-    // ReactDOM.render(React.createElement(IncorporationForm, {}), document.getElementById('app'));
-
 });
