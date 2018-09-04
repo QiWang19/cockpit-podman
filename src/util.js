@@ -222,69 +222,66 @@ export function updateImages() {
 }
 
 export function getCommitStr(arr, cmd) {
-	let ret = "";
-	if (cmd === "ENV") {
-		for (let i = 0; i < arr.length; i++) {
-			let k = arr[i].envvar_key;
-			let v = arr[i].envvar_value;
-			let temp = "";
-			if (i === arr.length - 1) {
-				// temp = '"ENV=' + "'" + '"' + k + "=" + v + '"' + "'" + '"';
-				temp = '"ENV=' + "'" + k + "=" + v + "'" + '"';
+    let ret = "";
+    if (cmd === "ENV") {
+        for (let i = 0; i < arr.length; i++) {
+            let k = arr[i].envvar_key;
+            let v = arr[i].envvar_value;
+            let temp = "";
+            if (i === arr.length - 1) {
+                // temp = '"ENV=' + "'" + '"' + k + "=" + v + '"' + "'" + '"';
+                temp = '"ENV=' + "'" + k + "=" + v + "'" + '"';
+            } else {
+                // temp = '"ENV=' + "'" + '"' + k + "=" + v + '"' + "'" + '"' + ",";
 
-			} else {
-				// temp = '"ENV=' + "'" + '"' + k + "=" + v + '"' + "'" + '"' + ",";
-
-				temp = '"ENV=' + "'" + k + "=" + v + "'" + '"' + ",";
-			}
-			ret += temp;
-		}
-	} else if (cmd === "LABEL") {
-		for (let i = 0; i < arr.length; i++) {
-			let k = arr[i].labvar_key;
-			let v = arr[i].labvar_value;
-			let temp = "";
-			if (i === arr.length - 1) {
-				// temp = '"LABEL=' + "'" + '"' + k + "=" + v + '"' + "'" + '"';
-				temp = '"LABEL=' + "'" + k + "=" + v + "'" + '"';
-
-			} else {
-				// temp = '"LABEL=' + "'" + '"' + k + "=" + v + '"' + "'" + '"' + ",";
-				temp = '"LABEL=' + "'" + k + "=" + v + "'" + '"' + ",";
-
-			}
-			ret += temp;
-		}
-	} else if (cmd === "EXPOSE") {
-		for (let i = 0; i < arr.length; i++) {
-			let temp = "";
-			if (i === arr.length - 1) {
-				temp = '"EXPOSE=' + arr[i] + '"';
-			} else {
-				temp = '"EXPOSE=' + arr[i] + '"' + ",";
-			}
-			ret += temp;
-		}
-	} else if (cmd === "VOLUME") {
-		for (let i = 0; i < arr.length; i++) {
-			let temp = "";
-			if (i === arr.length - 1) {
-				temp = '"VOLUME=' + arr[i] + '"';
-			} else {
-				temp = '"VOLUME=' + arr[i] + '"' + ",";
-			}
-			ret += temp;
-		}
-	} else if (cmd === "ONBUILD") {
-		for (let i = 0; i < arr.length; i++) {
-			let temp = "";
-			if (i === arr.length - 1) {
-				temp = '"ONBUILD=' + arr[i] + '"';
-			} else {
-				temp = '"ONBUILD=' + arr[i] + '"' + ",";
-			}
-			ret += temp;
-		}
-	}
-	return ret;
+                temp = '"ENV=' + "'" + k + "=" + v + "'" + '"' + ",";
+            }
+            ret += temp;
+        }
+    } else if (cmd === "LABEL") {
+        for (let i = 0; i < arr.length; i++) {
+            let k = arr[i].labvar_key;
+            let v = arr[i].labvar_value;
+            let temp = "";
+            if (i === arr.length - 1) {
+                // temp = '"LABEL=' + "'" + '"' + k + "=" + v + '"' + "'" + '"';
+                temp = '"LABEL=' + "'" + k + "=" + v + "'" + '"';
+            } else {
+                // temp = '"LABEL=' + "'" + '"' + k + "=" + v + '"' + "'" + '"' + ",";
+                temp = '"LABEL=' + "'" + k + "=" + v + "'" + '"' + ",";
+            }
+            ret += temp;
+        }
+    } else if (cmd === "EXPOSE") {
+        for (let i = 0; i < arr.length; i++) {
+            let temp = "";
+            if (i === arr.length - 1) {
+                temp = '"EXPOSE=' + arr[i] + '"';
+            } else {
+                temp = '"EXPOSE=' + arr[i] + '"' + ",";
+            }
+            ret += temp;
+        }
+    } else if (cmd === "VOLUME") {
+        for (let i = 0; i < arr.length; i++) {
+            let temp = "";
+            if (i === arr.length - 1) {
+                temp = '"VOLUME=' + arr[i] + '"';
+            } else {
+                temp = '"VOLUME=' + arr[i] + '"' + ",";
+            }
+            ret += temp;
+        }
+    } else if (cmd === "ONBUILD") {
+        for (let i = 0; i < arr.length; i++) {
+            let temp = "";
+            if (i === arr.length - 1) {
+                temp = '"ONBUILD=' + arr[i] + '"';
+            } else {
+                temp = '"ONBUILD=' + arr[i] + '"' + ",";
+            }
+            ret += temp;
+        }
+    }
+    return ret;
 }
