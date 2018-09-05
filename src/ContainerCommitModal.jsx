@@ -26,9 +26,9 @@ class ContainerCommitModal extends React.Component {
             ports:[""],
             volumes:[""],
             onbuild: [""],
-            format:"",
-            selectedFormat: "",
-            onbuildDisabled: true,
+            format: "oci",
+            selectedFormat: "oci",
+            onbuildDisabled: false,
         };
         this.state = this.initialState;
         this.handleInputChange = this.handleInputChange.bind(this);
@@ -282,13 +282,15 @@ class ContainerCommitModal extends React.Component {
                         <tr>
                             <td><label className="control-label" translatable="yes">Format</label></td>
                             <td colSpan="3">
-                                <label htmlFor="format-docker">
-                                    <input type="radio" id="format-docker" value="docker" checked={this.state.selectedFormat === 'docker'} onChange={(event) => this.handleFormatChange(event)} />
-                                    dokcer</label>
-                                {/* <span className="container-format"/>{this.props.containerWillCommit.Name} */}
                                 <label htmlFor="format-oci">
                                     <input type="radio" id="format-oci" value="oci" checked={this.state.selectedFormat === 'oci'} onChange={(event) => this.handleFormatChange(event)} />
-                                    oci</label>
+                                    oci
+                                </label>
+                                <label htmlFor="format-docker">
+                                    <input type="radio" id="format-docker" value="docker" checked={this.state.selectedFormat === 'docker'} onChange={(event) => this.handleFormatChange(event)} />
+                                    docker
+                                </label>
+                                {/* <span className="container-format"/>{this.props.containerWillCommit.Name} */}
                             </td>
                         </tr>
                         <tr>
