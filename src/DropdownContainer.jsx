@@ -1,4 +1,5 @@
 import React from 'react';
+import PropTypes from 'prop-types';
 import {SplitButton, MenuItem} from 'react-bootstrap';
 
 class DropdownContainer extends React.Component {
@@ -60,8 +61,12 @@ class DropdownContainer extends React.Component {
     }
 }
 
-DropdownContainer.defaultProps = {
-    actions: [ { label: '' } ]
+// DropdownContainer.defaultProps = {
+//     actions: [ { label: '' } ]
+// };
+
+DropdownContainer.PropTypes = {
+    actions: PropTypes.array.isRequired
 };
 
 export default DropdownContainer;
