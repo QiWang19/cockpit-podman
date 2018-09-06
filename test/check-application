@@ -56,7 +56,7 @@ class TestApplication(testlib.MachineCase):
         # test the container stop dropdown menu under the listing toggle
         self.containerStopDropdown()
 
-        #show running container
+        # show running container
         b.click("#containers-containers-filter button")
         b.wait_present("#containers-containers-filter .dropdown-menu")
         b.click("#containers-containers-filter li[data-data='running'] a")
@@ -130,6 +130,12 @@ class TestApplication(testlib.MachineCase):
         b.click('#containers-containers tbody tr:contains("busybox:latest") + tr ul li:contains("Restart")')
         b.wait_present('#containers-containers tr:contains("busybox:latest") td:contains("running")')
 
+        # run a container (will exit immediately)
+        m.execute("podman run -d --name test-sh alpine sh")
+        # show commit modal
+        self.containerCommitModal()
+        # execute commit in commit modal
+
     # FIXME: UI needs to listen to change signals and update automatically
 
     def confirm(self):
@@ -158,11 +164,25 @@ class TestApplication(testlib.MachineCase):
         b.wait_present("#containers-containers")
 
     def containerStopDropdown(self):
+        """Show the start&stop dropdown menu after clicking the caret"""
+
         b = self.browser
         b.wait_present('#containers-containers tbody tr:contains("busybox:latest") + tr button span.caret')
         b.click('#containers-containers tbody tr:contains("busybox:latest") + tr button span.caret')
         b.wait_present('#containers-containers tbody tr:contains("busybox:latest") + tr ul:contains("Stop")')
         b.wait_present('#containers-containers tbody tr:contains("busybox:latest") + tr ul:contains("Restart")')
 
+    def containerCommitModal(self):
+        """Show the commit modal after clicking commit button under listing toggle"""
+
+        b = self.browser
+        self.pageReload()
+        self.loadAllContainerlist()
+        b.wait_present('#containers-containers tr:contains("alpine:latest")')
+        b.click('#containers-containers tbody tr:contains("alpine:latest") td.listing-ct-toggle')
+        b.wait_present('#containers-containers tbody tr:contains("alpine:latest") + tr button:contains("Commit")')
+        b.click('#containers-containers tbody tr:contains("alpine:latest") + tr button:contains("Commit")')
+        b.wait_present(".modal-dialog div")
+        b.wait_present(".modal-dialog div .btn-primary")
 if __name__ == '__main__':
     testlib.test_main()
