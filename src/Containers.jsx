@@ -131,30 +131,16 @@ class Containers extends React.Component {
     }
 
     handleContainerCommit(commitMsg) {
-        // get commit data from ContainerCommitModal
-        let name = '"name":"' + this.state.containerWillCommit.ID + '"' + ",";
-        let imgName = commitMsg.imageName.trim() === "" ? "" : '"image_name":"' + commitMsg.imageName.trim() + '"' + ",";
-        let author = commitMsg.author.trim() === "" ? "" : '"author":"' + commitMsg.author.trim() + '"' + ",";
-        let message = commitMsg.message.trim() === "" ? "" : '"message":"' + commitMsg.message.trim() + '"' + ",";
-        let pause = commitMsg.pause ? '"pause":true' : '"pause":false';
         let userStr = commitMsg.user.trim() === "" ? "" : commitMsg.user.trim();
-        let format = commitMsg.setonbuild ? '"format":"' + commitMsg.format.trim() + '"' + "," : "";
-        let ports = "";
-        let envs = "";
-        let labels = "";
-        let volumes = "";
-        let onbuilds = "";
         console.log(commitMsg.format);
-        let user = '"User=' + userStr + '"';
 
         let workDirStr = commitMsg.workdir.trim() === ""
             ? (this.state.containerWillCommit.Config ? this.state.containerWillCommit.Config.WorkingDir : "")
             : commitMsg.workdir.trim();
-        let workDir = '"WORKDIR=' + "'" + workDirStr + "'" + '"';
+        let workDir = "WORKDIR=" + "'" + workDirStr + "'";
 
-        // If the field is empty , use original cmd from container
+        // If these fields are empty, use original cmd from container
         let stopSigStr = commitMsg.stopsignal.trim() === "" ? (this.state.containerWillCommit.Config ? this.state.containerWillCommit.Config.StopSignal : "") : commitMsg.stopsignal.trim();
-        let stopSignal = '"STOPSIGNAL=' + stopSigStr + '"';
 
         let cmdStr = "";
         if (commitMsg.command.trim() === "") {
@@ -162,7 +148,6 @@ class Containers extends React.Component {
         } else {
             cmdStr = commitMsg.command.trim();
         }
-        let cmd = '"CMD=' + cmdStr + '"';
 
         let entryPointStr = "";
         if (commitMsg.entrypoint.trim() === "") {
@@ -170,89 +155,59 @@ class Containers extends React.Component {
         } else {
             entryPointStr = commitMsg.entrypoint.trim();
         }
-        let entryPoint = '"ENTRYPOINT=' + entryPointStr + '"';
 
-        if (!commitMsg.setport) {
-            ports = "";
-        } else {
-            ports = utils.getCommitStr(commitMsg.ports, "EXPOSE");
-            console.log(ports);
+        let commitData = {};
+        commitData.name = this.state.containerWillCommit.ID;
+        commitData.image_name = commitMsg.imageName;
+        commitData.author = commitMsg.author;
+        commitData.message = commitMsg.message;
+        commitData.pause = commitMsg.pause;
+        commitData.format = commitMsg.format;
+
+        commitData.changes = [];
+        let userData = "User=" + userStr;
+        let stopSignalData = "STOPSIGNAL=" + stopSigStr;
+        let cmdData = "CMD=" + cmdStr;
+        let entryPointData = "ENTRYPOINT=" + entryPointStr;
+        commitData.changes.push(userData);
+        commitData.changes.push(stopSignalData);
+        commitData.changes.push(cmdData);
+        commitData.changes.push(entryPointData);
+
+        let portsArr = [];
+        let envsArr = [];
+        let labelsArr = [];
+        let volumesArr = [];
+        let onbuildsArr = [];
+
+        if (commitMsg.setport) {
+            portsArr = utils.getCommitArr(commitMsg.ports, "EXPOSE");
         }
-        if (!commitMsg.setenv) {
-            envs = "";
-        } else {
-            envs = utils.getCommitStr(commitMsg.envs, "ENV");
-            console.log(envs);
+        if (commitMsg.setenv) {
+            envsArr = utils.getCommitArr(commitMsg.envs, "ENV");
         }
-        if (!commitMsg.setlabel) {
-            labels = "";
-        } else {
-            labels = utils.getCommitStr(commitMsg.labs, "LABEL");
-            console.log(labels);
+        if (commitMsg.setlabel) {
+            labelsArr = utils.getCommitArr(commitMsg.labs, "LABEL");
         }
-        if (!commitMsg.setvolume) {
-            volumes = "";
-        } else {
-            volumes = utils.getCommitStr(commitMsg.volumes, "VOLUME");
-            console.log(volumes);
+        if (commitMsg.setvolume) {
+            volumesArr = utils.getCommitArr(commitMsg.volumes, "VOLUME");
         }
-        if (!commitMsg.setonbuild) {
-            onbuilds = "";
-        } else {
-            onbuilds = utils.getCommitStr(commitMsg.onbuild, "ONBUILD");
-            console.log(onbuilds);
+        if (commitMsg.setonbuild) {
+            onbuildsArr = utils.getCommitArr(commitMsg.onbuild, "ONBUILD");
         }
-        // build changes field
-        let changesStr = '"changes":[';
-        if (ports !== "") {
-            changesStr += ports + ",";
-        }
-        if (envs !== "") {
-            changesStr += envs + ",";
-        }
-        if (volumes !== "") {
-            changesStr += volumes + ",";
-        }
-        if (onbuilds !== "") {
-            changesStr += onbuilds + ",";
-        }
-        if (labels !== "") {
-            changesStr += labels + ",";
-        }
+        commitData.changes.push(...portsArr);
+        commitData.changes.push(...envsArr);
+        commitData.changes.push(...volumesArr);
+        commitData.changes.push(...onbuildsArr);
+        commitData.changes.push(...labelsArr);
         if (workDirStr !== "/" && workDirStr !== "") {
-            changesStr += workDir + ",";
+            commitData.changes.push(workDir);
         }
-
-        // build the commit msg string
-        changesStr += cmd + "," +
-                    entryPoint + "," +
-                    stopSignal + "," +
-                    user + "],";
-
-        let commitStr = "{" + name +
-                            imgName +
-                            author +
-                            message +
-                            changesStr +
-                            format +
-                            pause + "}";
-        console.log(commitStr);
+        console.log(commitData);
         // execute the API Commit method
-        utils.varlinkCall(utils.PODMAN, "io.podman.Commit", JSON.parse(commitStr))
+        utils.varlinkCall(utils.PODMAN, "io.podman.Commit", commitData)
                 .then(reply => {
                     this.updateImagesAfterEvent();
-                    // if (reply.image) {
-                    //     const imgId = reply.image;
-                    //     utils.varlinkCall(utils.PODMAN, "io.podman.InspectImage", JSON.parse('{"name":"' + imgId + '"}'))
-                    //             .then(reply => {
-                    //                 if (!reply.image) {
-                    //                     return;
-                    //                 }
-                    //                 this.props.updateCommitImage(JSON.parse(reply.image));
-                    //             })
-                    //             .catch(ex => console.error("Failed to do InspectImage call:", ex, JSON.stringify(ex)));
-                    //     console.log(reply.image);
-                    // }
                 })
                 .catch(ex => {
                     console.error("Failed to do Commit call:", ex, JSON.stringify(ex));
@@ -262,6 +217,139 @@ class Containers extends React.Component {
             setContainerCommitModal: !prevState.setContainerCommitModal
         }));
     }
+
+    // handleContainerCommit(commitMsg) {
+    //     // get commit data from ContainerCommitModal
+    //     let name = '"name":"' + this.state.containerWillCommit.ID + '"' + ",";
+    //     let imgName = commitMsg.imageName.trim() === "" ? "" : '"image_name":"' + commitMsg.imageName.trim() + '"' + ",";
+    //     let author = commitMsg.author.trim() === "" ? "" : '"author":"' + commitMsg.author.trim() + '"' + ",";
+    //     let message = commitMsg.message.trim() === "" ? "" : '"message":"' + commitMsg.message.trim() + '"' + ",";
+    //     let pause = commitMsg.pause ? '"pause":true' : '"pause":false';
+    //     let userStr = commitMsg.user.trim() === "" ? "" : commitMsg.user.trim();
+    //     let format = commitMsg.setonbuild ? '"format":"' + commitMsg.format.trim() + '"' + "," : "";
+    //     let ports = "";
+    //     let envs = "";
+    //     let labels = "";
+    //     let volumes = "";
+    //     let onbuilds = "";
+    //     console.log(commitMsg.format);
+    //     let user = '"User=' + userStr + '"';
+
+    //     let workDirStr = commitMsg.workdir.trim() === ""
+    //         ? (this.state.containerWillCommit.Config ? this.state.containerWillCommit.Config.WorkingDir : "")
+    //         : commitMsg.workdir.trim();
+    //     let workDir = '"WORKDIR=' + "'" + workDirStr + "'" + '"';
+
+    //     // If the field is empty , use original cmd from container
+    //     let stopSigStr = commitMsg.stopsignal.trim() === "" ? (this.state.containerWillCommit.Config ? this.state.containerWillCommit.Config.StopSignal : "") : commitMsg.stopsignal.trim();
+    //     let stopSignal = '"STOPSIGNAL=' + stopSigStr + '"';
+
+    //     let cmdStr = "";
+    //     if (commitMsg.command.trim() === "") {
+    //         cmdStr = this.state.containerWillCommit.Config ? this.state.containerWillCommit.Config.Cmd.join(" ") : "";
+    //     } else {
+    //         cmdStr = commitMsg.command.trim();
+    //     }
+    //     let cmd = '"CMD=' + cmdStr + '"';
+
+    //     let entryPointStr = "";
+    //     if (commitMsg.entrypoint.trim() === "") {
+    //         entryPointStr = this.state.containerWillCommit.Config ? this.state.containerWillCommit.Config.Entrypoint : "";
+    //     } else {
+    //         entryPointStr = commitMsg.entrypoint.trim();
+    //     }
+    //     let entryPoint = '"ENTRYPOINT=' + entryPointStr + '"';
+
+    //     if (!commitMsg.setport) {
+    //         ports = "";
+    //     } else {
+    //         ports = utils.getCommitStr(commitMsg.ports, "EXPOSE");
+    //         console.log(ports);
+    //     }
+    //     if (!commitMsg.setenv) {
+    //         envs = "";
+    //     } else {
+    //         envs = utils.getCommitStr(commitMsg.envs, "ENV");
+    //         console.log(envs);
+    //     }
+    //     if (!commitMsg.setlabel) {
+    //         labels = "";
+    //     } else {
+    //         labels = utils.getCommitStr(commitMsg.labs, "LABEL");
+    //         console.log(labels);
+    //     }
+    //     if (!commitMsg.setvolume) {
+    //         volumes = "";
+    //     } else {
+    //         volumes = utils.getCommitStr(commitMsg.volumes, "VOLUME");
+    //         console.log(volumes);
+    //     }
+    //     if (!commitMsg.setonbuild) {
+    //         onbuilds = "";
+    //     } else {
+    //         onbuilds = utils.getCommitStr(commitMsg.onbuild, "ONBUILD");
+    //         console.log(onbuilds);
+    //     }
+    //     // build changes field
+    //     let changesStr = '"changes":[';
+    //     if (ports !== "") {
+    //         changesStr += ports + ",";
+    //     }
+    //     if (envs !== "") {
+    //         changesStr += envs + ",";
+    //     }
+    //     if (volumes !== "") {
+    //         changesStr += volumes + ",";
+    //     }
+    //     if (onbuilds !== "") {
+    //         changesStr += onbuilds + ",";
+    //     }
+    //     if (labels !== "") {
+    //         changesStr += labels + ",";
+    //     }
+    //     if (workDirStr !== "/" && workDirStr !== "") {
+    //         changesStr += workDir + ",";
+    //     }
+
+    //     // build the commit msg string
+    //     changesStr += cmd + "," +
+    //                 entryPoint + "," +
+    //                 stopSignal + "," +
+    //                 user + "],";
+
+    //     let commitStr = "{" + name +
+    //                         imgName +
+    //                         author +
+    //                         message +
+    //                         changesStr +
+    //                         format +
+    //                         pause + "}";
+    //     console.log(commitStr);
+    //     // execute the API Commit method
+    //     utils.varlinkCall(utils.PODMAN, "io.podman.Commit", JSON.parse(commitStr))
+    //             .then(reply => {
+    //                 this.updateImagesAfterEvent();
+    //                 // if (reply.image) {
+    //                 //     const imgId = reply.image;
+    //                 //     utils.varlinkCall(utils.PODMAN, "io.podman.InspectImage", JSON.parse('{"name":"' + imgId + '"}'))
+    //                 //             .then(reply => {
+    //                 //                 if (!reply.image) {
+    //                 //                     return;
+    //                 //                 }
+    //                 //                 this.props.updateCommitImage(JSON.parse(reply.image));
+    //                 //             })
+    //                 //             .catch(ex => console.error("Failed to do InspectImage call:", ex, JSON.stringify(ex)));
+    //                 //     console.log(reply.image);
+    //                 // }
+    //             })
+    //             .catch(ex => {
+    //                 console.error("Failed to do Commit call:", ex, JSON.stringify(ex));
+    //                 document.body.classList.remove('busy-cursor');
+    //             });
+    //     this.setState((prevState) => ({
+    //         setContainerCommitModal: !prevState.setContainerCommitModal
+    //     }));
+    // }
 
     renderRow(containersStats, container) {
         const containerStats = containersStats[container.ID] ? containersStats[container.ID] : undefined;

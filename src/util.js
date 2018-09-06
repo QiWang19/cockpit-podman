@@ -203,16 +203,31 @@ export function updateImages() {
                         resolve(newImages);
                         return;
                     }
+                    let inspectRet = [];
                     newImagesMeta.map((img) => {
-                        varlinkCall(PODMAN, "io.podman.InspectImage", {name: img.id})
-                                .then(reply => {
-                                    newImages.push(JSON.parse(reply.image));
+                        let proEle = new Promise((resolve, reject) => {
+                            varlinkCall(PODMAN, "io.podman.InspectImage", {name: img.id})
+                                    .then(reply => {
+                                        resolve(JSON.parse(reply.image));
+                                    })
+                                    .catch(ex => {
+                                        reject(new Error("Failed to do InspectImage call:", ex, JSON.stringify(ex)));
+                                    });
+                        });
+                        inspectRet.push(proEle);
+                    });
+                    Promise.all(inspectRet)
+                            .then((inspectRet) => {
+                                inspectRet.map((inspectRet) => {
+                                    newImages.push(inspectRet);
                                     if (newImages.length === len) {
                                         resolve(newImages);
                                     }
-                                })
-                                .catch(ex => console.error("Failed to do InspectImage call:", ex, JSON.stringify(ex)));
-                    });
+                                });
+                            })
+                            .catch(ex => {
+                                console.error("Failed to do InspectImage call:", ex, JSON.stringify(ex));
+                            });
                 })
                 .catch(ex => {
                     console.error("Failed to do ListImages call:", ex, JSON.stringify(ex));
@@ -229,11 +244,8 @@ export function getCommitStr(arr, cmd) {
             let v = arr[i].envvar_value;
             let temp = "";
             if (i === arr.length - 1) {
-                // temp = '"ENV=' + "'" + '"' + k + "=" + v + '"' + "'" + '"';
                 temp = '"ENV=' + "'" + k + "=" + v + "'" + '"';
             } else {
-                // temp = '"ENV=' + "'" + '"' + k + "=" + v + '"' + "'" + '"' + ",";
-
                 temp = '"ENV=' + "'" + k + "=" + v + "'" + '"' + ",";
             }
             ret += temp;
@@ -244,10 +256,8 @@ export function getCommitStr(arr, cmd) {
             let v = arr[i].labvar_value;
             let temp = "";
             if (i === arr.length - 1) {
-                // temp = '"LABEL=' + "'" + '"' + k + "=" + v + '"' + "'" + '"';
                 temp = '"LABEL=' + "'" + k + "=" + v + "'" + '"';
             } else {
-                // temp = '"LABEL=' + "'" + '"' + k + "=" + v + '"' + "'" + '"' + ",";
                 temp = '"LABEL=' + "'" + k + "=" + v + "'" + '"' + ",";
             }
             ret += temp;
@@ -283,5 +293,41 @@ export function getCommitStr(arr, cmd) {
             ret += temp;
         }
     }
+    return ret;
+}
+
+export function getCommitArr(arr, cmd) {
+    let ret = [];
+    if (cmd === "ENV") {
+        for (let i = 0; i < arr.length; i++) {
+            let k = arr[i].envvar_key;
+            let v = arr[i].envvar_value;
+            let temp = "ENV=" + "'" + k + "=" + v + "'";
+            ret.push(temp);
+        }
+    } else if (cmd === "LABEL") {
+        for (let i = 0; i < arr.length; i++) {
+            let k = arr[i].labvar_key;
+            let v = arr[i].labvar_value;
+            let temp = "LABEL=" + "'" + k + "=" + v + "'";
+            ret.push(temp);
+        }
+    } else if (cmd === "EXPOSE") {
+        for (let i = 0; i < arr.length; i++) {
+            let temp = "EXPOSE=" + arr[i];
+            ret.push(temp);
+        }
+    } else if (cmd === "VOLUME") {
+        for (let i = 0; i < arr.length; i++) {
+            let temp = "VOLUME=" + arr[i];
+            ret.push(temp);
+        }
+    } else if (cmd === "ONBUILD") {
+        for (let i = 0; i < arr.length; i++) {
+            let temp = "ONBUILD=" + arr[i];
+            ret.push(temp);
+        }
+    }
+    console.log(ret);
     return ret;
 }
