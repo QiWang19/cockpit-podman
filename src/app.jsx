@@ -101,8 +101,9 @@ class Application extends React.Component {
                     this.state.containersMeta.map((container) => {
                         utils.varlinkCall(utils.PODMAN, "io.podman.InspectContainer", {name: container.id})
                                 .then(reply => {
-                                    let temp_containers = this.state.containers;
-                                    temp_containers.push(JSON.parse(reply.container));
+                                    let temp_containers = this.state.containers.slice();
+                                    // temp_containers.push(JSON.parse(reply.container));
+                                    temp_containers[container.id] = JSON.parse(reply.container);
                                     this.setState({containers: temp_containers});
                                 })
                                 .catch(ex => console.error("Failed to do InspectContainer call:", ex, JSON.stringify(ex)));

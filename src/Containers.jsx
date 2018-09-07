@@ -342,10 +342,16 @@ class Containers extends React.Component {
         let emptyCaption = _("No running containers");
         const containersStats = this.props.containersStats;
         // TODO: check filter text
-        let filtered = this.props.containers.filter(container => (!this.props.onlyShowRunning || container.State.Running));
-        let rows = filtered.map(function (container) {
-            return this.renderRow(containersStats, container);
+        console.log(this.props.containers);
+        // let filtered = this.props.containers.filter(container => { return (!this.props.onlyShowRunning || container.State.Running) });
+        let filtered = [];
+        Object.keys(this.props.containers).filter(id => { if (!this.props.onlyShowRunning || this.props.containers[id].State.Running) { filtered[id] = this.props.containers[id] } });
+        console.log(filtered);
+
+        let rows = Object.keys(filtered).map(function (id) {
+            return this.renderRow(containersStats, this.props.containers[id]);
         }, this);
+        console.log(rows);
         const containerDeleteModal =
             <ContainerDeleteModal
                 selectContainerDeleteModal={this.state.selectContainerDeleteModal}

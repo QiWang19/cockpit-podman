@@ -296,11 +296,13 @@ export const Listing = (props) => {
     let headerClasses;
     let headerRow;
     let selectableRows;
-    if (!props.children || props.children.length === 0) {
+    if (!props.children || (props.children.length === 0 && Object.keys(props.children).length === 0)) {
+        console.log("children");
         headerClasses = "listing-ct-empty";
         headerRow = <tr><td>{props.emptyCaption}</td></tr>;
     } else if (props.columnTitles.length) {
         // check if any of the children are selectable
+        console.log("else children");
         selectableRows = false;
         props.children.forEach(function(r) {
             if (r.props.selected !== undefined)
