@@ -42,24 +42,12 @@ class Containers extends React.Component {
         }));
     }
 
-    updateContainersAfterEvent() {
-        utils.updateContainers()
-                .then((reply) => {
-                    this.props.updateContainers(reply.newContainers);
-                    document.body.classList.remove('busy-cursor');
-                })
-                .catch(ex => {
-                    console.error("Failed to do Update Container:", JSON.stringify(ex));
-                    document.body.classList.remove('busy-cursor');
-                });
-    }
-
     stopContainer(container, timeout) {
         document.body.classList.add('busy-cursor');
         timeout = timeout || 10;
         utils.varlinkCall(utils.PODMAN, "io.podman.StopContainer", {name: container.ID, timeout: timeout})
                 .then(reply => {
-                    this.updateContainersAfterEvent();
+                    this.props.updateContainersAfterEvent();
                 })
                 .catch(ex => {
                     console.error("Failed to do StopContainer call:", JSON.stringify(ex));
@@ -72,7 +60,7 @@ class Containers extends React.Component {
         const id = container.ID;
         utils.varlinkCall(utils.PODMAN, "io.podman.StartContainer", {name: id})
                 .then(reply => {
-                    this.updateContainersAfterEvent();
+                    this.props.updateContainersAfterEvent();
                 })
                 .catch(ex => {
                     console.error("Failed to do StartContainer call:", JSON.stringify(ex));
@@ -87,7 +75,7 @@ class Containers extends React.Component {
         }
         utils.varlinkCall(utils.PODMAN, "io.podman.RestartContainer", {name: container.ID, timeout: timeout})
                 .then(reply => {
-                    this.updateContainersAfterEvent();
+                    this.props.updateContainersAfterEvent();
                 })
                 .catch(ex => {
                     console.error("Failed to do RestartContainer call:", JSON.stringify(ex));
@@ -96,8 +84,8 @@ class Containers extends React.Component {
     }
 
     renderRow(containersStats, container) {
-        const containerStats = containersStats[container.ID] ? containersStats[container.ID] : undefined;
         const isRunning = !!container.State.Running;
+        const containerStats = isRunning ? containersStats[container.ID] : undefined;
         const image = container.ImageName;
         const state = container.State.Status;
 
@@ -169,7 +157,7 @@ class Containers extends React.Component {
         });
         utils.varlinkCall(utils.PODMAN, "io.podman.RemoveContainer", {name: id})
                 .then((reply) => {
-                    this.updateContainersAfterEvent();
+                    this.props.updateContainersAfterEvent();
                 })
                 .catch((ex) => {
                     if (container.State.Running) {
@@ -203,7 +191,7 @@ class Containers extends React.Component {
         const id = this.state.containerWillDelete ? this.state.containerWillDelete.ID : "";
         utils.varlinkCall(utils.PODMAN, "io.podman.RemoveContainer", {name: id, force: true})
                 .then(reply => {
-                    this.updateContainersAfterEvent();
+                    this.props.updateContainersAfterEvent();
                     this.setState({
                         setContainerRemoveErrorModal: false
                     });
@@ -218,9 +206,10 @@ class Containers extends React.Component {
         let emptyCaption = _("No running containers");
         const containersStats = this.props.containersStats;
         // TODO: check filter text
-        let filtered = this.props.containers.filter(container => (!this.props.onlyShowRunning || container.State.Running));
-        let rows = filtered.map(function (container) {
-            return this.renderRow(containersStats, container);
+        let filtered = [];
+        Object.keys(this.props.containers).filter(id => { if (!this.props.onlyShowRunning || this.props.containers[id].State.Running) { filtered[id] = this.props.containers[id] } });
+        let rows = Object.keys(filtered).map(function (id) {
+            return this.renderRow(containersStats, this.props.containers[id]);
         }, this);
         const containerDeleteModal =
             <ContainerDeleteModal

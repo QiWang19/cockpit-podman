@@ -53,8 +53,8 @@ function varlinkCallChannel(channel, method, parameters) {
 
 function varlinkCallError(error) {
     let str = "";
-    str = error.error ? str + error.error.toString() : str;
-    str = error.parameters ? str + " " + error.parameters.reason.toString() : str;
+    error.error ? str += error.error.toString() : str;
+    (error.parameters && error.parameters.reason) ? str += " " + error.parameters.reason.toString() : str;
     return str;
 }
 
@@ -128,7 +128,7 @@ export function updateContainers() {
                         resolve({newContainers: newContainers, newContainersStats: newContainersStats});
                         return;
                     }
-                    const len = newContainersMeta.length;
+                    const containerCount = newContainersMeta.length;
                     let inspectRet = [];
                     newContainersMeta.map((container) => {
                         let proEle = new Promise((resolve, reject) => {
@@ -148,8 +148,8 @@ export function updateContainers() {
                                     return ele.status === "running";
                                 });
                                 inspectRet.map((inspectRet) => {
-                                    newContainers.push(inspectRet);
-                                    if (runEle.length === 0 && newContainers.length === len) {
+                                    newContainers[inspectRet.ID] = inspectRet;
+                                    if (runEle.length === 0 && Object.keys(newContainers).length === containerCount) {
                                         resolve({newContainers: newContainers, newContainersStats: newContainersStats});
                                     }
                                 });
@@ -157,7 +157,7 @@ export function updateContainers() {
                             .catch(ex => {
                                 console.error("Failed to do InspectContainer call:", ex, JSON.stringify(ex));
                             });
-                    let crtStatsRet = [];
+                    let containerStatsRet = [];
                     let runCtrArr = newContainersMeta.filter((ele) => {
                         return ele.status === "running";
                     }).map((container) => {
@@ -171,14 +171,14 @@ export function updateContainers() {
                                         reject(new Error("Failed to do GetContainerStats call:", ex, JSON.stringify(ex)));
                                     });
                         });
-                        crtStatsRet.push(proEle);
+                        containerStatsRet.push(proEle);
                     });
 
-                    Promise.all(crtStatsRet)
-                            .then((crtStatsRet) => {
-                                crtStatsRet.map((crtStatsRet) => {
-                                    newContainersStats[crtStatsRet.ctrId] = crtStatsRet.ctrStats;
-                                    if (newContainers.length === len && Object.keys(newContainersStats).length === runCtrArr.length) {
+                    Promise.all(containerStatsRet)
+                            .then((containerStatsRet) => {
+                                containerStatsRet.map((containerStatsRet) => {
+                                    newContainersStats[containerStatsRet.ctrId] = containerStatsRet.ctrStats;
+                                    if (newContainers.length === containerCount && Object.keys(newContainersStats).length === runCtrArr.length) {
                                         resolve({newContainers: newContainers, newContainersStats: newContainersStats});
                                     }
                                 });
@@ -199,7 +199,7 @@ export function updateImages() {
         varlinkCall(PODMAN, "io.podman.ListImages")
                 .then(reply => {
                     newImagesMeta = reply.images;
-                    const len = newImagesMeta ? newImagesMeta.length : 0;
+                    const imageCount = newImagesMeta ? newImagesMeta.length : 0;
                     if (!newImagesMeta) {
                         resolve(newImages);
                         return;
@@ -220,8 +220,8 @@ export function updateImages() {
                     Promise.all(inspectRet)
                             .then((inspectRet) => {
                                 inspectRet.map((inspectRet) => {
-                                    newImages.push(inspectRet);
-                                    if (newImages.length === len) {
+                                    newImages[inspectRet.Id] = inspectRet;
+                                    if (Object.keys(newImages).length === imageCount) {
                                         resolve(newImages);
                                     }
                                 });
