@@ -48,30 +48,6 @@ class Containers extends React.Component {
         }));
     }
 
-    // updateContainersAfterEvent() {
-    //     utils.updateContainers()
-    //             .then((reply) => {
-    //                 this.props.updateContainers(reply.newContainers);
-    //                 document.body.classList.remove('busy-cursor');
-    //             })
-    //             .catch(ex => {
-    //                 console.error("Failed to do Update Container:", JSON.stringify(ex));
-    //                 document.body.classList.remove('busy-cursor');
-    //             });
-    // }
-
-    // updateImagesAfterEvent() {
-    //     utils.updateImages()
-    //             .then((reply) => {
-    //                 this.props.updateImages(reply);
-    //                 document.body.classList.remove('busy-cursor');
-    //             })
-    //             .catch(ex => {
-    //                 console.error("Failed to do Update Image:", JSON.stringify(ex));
-    //                 document.body.classList.remove('busy-cursor');
-    //             });
-    // }
-
     stopContainer(container, timeout) {
         document.body.classList.add('busy-cursor');
         timeout = timeout || 10;
@@ -207,6 +183,7 @@ class Containers extends React.Component {
         utils.varlinkCall(utils.PODMAN, "io.podman.Commit", commitData)
                 .then(reply => {
                     this.props.updateImagesAfterEvent();
+                    this.props.updateContainersAfterEvent();
                 })
                 .catch(ex => {
                     console.error("Failed to do Commit call:", ex, JSON.stringify(ex));
@@ -365,6 +342,13 @@ class Containers extends React.Component {
                 setWaitCursor={this.state.setWaitCursor}
             />;
 
+        const containerCommitModal =
+            <ContainerCommitModal
+                setContainerCommitModal={this.state.setContainerCommitModal}
+                handleContainerCommit={this.handleContainerCommit}
+                handleCancelContainerCommitModal={this.handleCancelContainerCommitModal}
+                containerWillCommit={this.state.containerWillCommit}
+            />;
         return (
             <div id="containers-containers" className="container-fluid ">
                 <Listing.Listing key={"ContainerListing"} title={_("Containers")} columnTitles={columnTitles} emptyCaption={emptyCaption}>
@@ -372,12 +356,7 @@ class Containers extends React.Component {
                 </Listing.Listing>
                 {containerDeleteModal}
                 {containerRemoveErrorModal}
-                <ContainerCommitModal
-                    setContainerCommitModal={this.state.setContainerCommitModal}
-                    handleContainerCommit={this.handleContainerCommit}
-                    handleCancelContainerCommitModal={this.handleCancelContainerCommitModal}
-                    containerWillCommit={this.state.containerWillCommit}
-                />
+                {containerCommitModal}
             </div>
         );
     }
