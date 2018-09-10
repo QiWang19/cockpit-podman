@@ -174,7 +174,6 @@ class ContainerCommitModal extends React.Component {
 
     handleCommit() {
         const commitMsg = this.state;
-        // console.log(this.state);
         this.props.handleContainerCommit(commitMsg);
         this.setState(this.initialState);
     }

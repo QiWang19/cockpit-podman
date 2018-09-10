@@ -72,30 +72,6 @@ class Images extends React.Component {
         }));
     }
 
-    // updateImagesAfterEvent() {
-    //     utils.updateImages()
-    //             .then((reply) => {
-    //                 this.props.updateImages(reply);
-    //                 document.body.classList.remove('busy-cursor');
-    //             })
-    //             .catch(ex => {
-    //                 console.error("Failed to do Update Image:", JSON.stringify(ex));
-    //                 document.body.classList.remove('busy-cursor');
-    //             });
-    // }
-
-    // updateContainersAfterEvent() {
-    //     utils.updateContainers()
-    //             .then((reply) => {
-    //                 this.props.updateContainers(reply.newContainers);
-    //                 document.body.classList.remove('busy-cursor');
-    //             })
-    //             .catch(ex => {
-    //                 console.error("Failed to do Update Container:", JSON.stringify(ex));
-    //                 document.body.classList.remove('busy-cursor');
-    //             });
-    // }
-
     handleRemoveImage() {
         const image = this.state.imageWillDelete.Id;
         this.setState({

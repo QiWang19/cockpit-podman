@@ -41,7 +41,6 @@ class Application extends React.Component {
         this.updateContainers = this.updateContainers.bind(this);
         this.updateImages = this.updateImages.bind(this);
         this.updateContainerStats = this.updateContainerStats.bind(this);
-        this.updateCommitImage = this.updateCommitImage.bind(this);
         this.updateContainersAfterEvent = this.updateContainersAfterEvent.bind(this);
         this.updateImagesAfterEvent = this.updateImagesAfterEvent.bind(this);
     }
@@ -183,10 +182,6 @@ class Application extends React.Component {
                           containers: this.state.containers,
                           containersStats: this.state.containersStats,
                           onlyShowRunning: this.state.onlyShowRunning,
-            //   updateContainers: this.updateContainers,
-            //   updateContainerStats: this.updateContainerStats,
-            //   updateCommitImage: this.updateCommitImage,
-            //   updateImages: this.updateImages,
                           updateContainersAfterEvent: this.updateContainersAfterEvent,
                           updateImagesAfterEvent: this.updateImagesAfterEvent
         };
