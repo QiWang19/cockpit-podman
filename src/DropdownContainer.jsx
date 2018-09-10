@@ -61,10 +61,6 @@ class DropdownContainer extends React.Component {
     }
 }
 
-// DropdownContainer.defaultProps = {
-//     actions: [ { label: '' } ]
-// };
-
 DropdownContainer.PropTypes = {
     actions: PropTypes.array.isRequired
 };

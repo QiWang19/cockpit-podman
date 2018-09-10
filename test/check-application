@@ -35,6 +35,8 @@ class TestApplication(testlib.MachineCase):
         # run a container
         m.execute("podman run -d --name swamped-crate busybox sleep 1000")
 
+        # FIXME: UI needs to listen to change signals and update automatically
+
         b.reload()
         b.enter_page("/podman")
         b.wait_present("#containers-containers-filter button")
@@ -130,13 +132,11 @@ class TestApplication(testlib.MachineCase):
         b.click('#containers-containers tbody tr:contains("busybox:latest") + tr ul li:contains("Restart")')
         b.wait_present('#containers-containers tr:contains("busybox:latest") td:contains("running")')
 
-        # run a container (will exit immediately)
+        # test for commit: run a container (will exit immediately)
         m.execute("podman run -d --name test-sh alpine sh")
         # show commit modal
         self.containerCommitModal()
         # execute commit in commit modal
-
-    # FIXME: UI needs to listen to change signals and update automatically
 
     def confirm(self):
         b = self.browser

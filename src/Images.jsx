@@ -51,7 +51,6 @@ class Images extends React.Component {
         if (image) {
             cockpit.location.go([ 'image', image.Id ]);
         }
-        return undefined;
     }
 
     showRunImageDialog(e) {
@@ -104,18 +103,8 @@ class Images extends React.Component {
         });
         utils.varlinkCall(utils.PODMAN, "io.podman.RemoveImage", {name: image})
                 .then((reply) => {
-                    this.updateImagesAfterEvent();
-                    this.updateContainersAfterEvent();
-                    // if (!reply.image) {
-                    //     return;
-                    // }
-                    // utils.updateImages()
-                    //         .then((reply) => {
-                    //             this.props.updateImages(reply);
-                    //         })
-                    //         .catch(ex => {
-                    //             console.error("Failed to do Update Container:", JSON.stringify(ex));
-                    //         });
+                    this.props.updateImagesAfterEvent();
+                    this.props.updateContainersAfterEvent();
                 })
                 .catch(ex => {
                     this.imageRemoveErrorMsg = _(ex);
@@ -130,29 +119,9 @@ class Images extends React.Component {
         const id = this.state.imageWillDelete ? this.state.imageWillDelete.Id : "";
         utils.varlinkCall(utils.PODMAN, "io.podman.RemoveImage", {name: id, force: true})
                 .then(reply => {
-                    // if (!reply.image) {
-                    //     return;
-                    // }
-                    // utils.updateImages()
-                    //         .then((reply) => {
-                    //             this.props.updateImages(reply);
-                    //             document.body.classList.remove('busy-cursor');
-                    //         })
-                    //         .catch(ex => {
-                    //             console.error("Failed to do Update Image:", JSON.stringify(ex));
-                    //             document.body.classList.remove('busy-cursor');
-                    //         });
-                    this.updateImagesAfterEvent();
+                    this.props.updateImagesAfterEvent();
                     // update the container list in case the image deleted used by a container
-                    this.updateContainersAfterEvent();
-                    // utils.updateContainers()
-                    //         .then((reply) => {
-                    //             this.props.updateContainers(reply.newContainers);
-                    //         })
-                    //         .catch(ex => {
-                    //             console.error("Failed to do Update Container:", JSON.stringify(ex));
-                    //             document.body.classList.remove('busy-cursor');
-                    //         });
+                    this.props.updateContainersAfterEvent();
                     this.setState({
                         setImageRemoveErrorModal: false
                     });
@@ -253,12 +222,10 @@ class Images extends React.Component {
                 [<a key={"searchImages"} role="link" tabIndex="0" onClick={this.handleSearchImageClick} className="card-pf-link-with-icon pull-right">
                     <span className="pficon pficon-add-circle-o" />{_("Get new image")}
                 </a>];
-            // TODO: filter images via filterText
-        let filtered = this.props.images;
-        // let imageRows = this.props.images.map(this.renderRow, this);
-        let imageRows = filtered.map(function(image) {
-            return this.renderRow(image);
-        }, this);
+        // TODO: filter images via filterText
+        let filtered = [];
+        Object.keys(this.props.images).filter(id => { filtered[id] = this.props.images[id] });
+        let imageRows = Object.keys(filtered).map((id) => this.renderRow(this.props.images[id]), this);
         const imageDeleteModal =
             <ModalExample
                     selectImageDeleteModal={this.state.selectImageDeleteModal}
