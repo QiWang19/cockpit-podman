@@ -106,45 +106,6 @@ class Containers extends React.Component {
     }
 
     handleContainerCommit(commitMsg) {
-        console.log(commitMsg.format);
-        let cmdStr = "";
-        if (commitMsg.command.trim() === "") {
-            cmdStr = this.state.containerWillCommit.Config ? this.state.containerWillCommit.Config.Cmd.join(" ") : "";
-        } else {
-            cmdStr = commitMsg.command.trim();
-        }
-
-        let commitData = {};
-        commitData.name = this.state.containerWillCommit.ID;
-        commitData.image_name = commitMsg.repository + "/" + commitMsg.imageName + ":" + commitMsg.tag;
-        commitData.author = commitMsg.author;
-        commitData.message = commitMsg.message;
-        commitData.pause = commitMsg.pause;
-        commitData.format = commitMsg.format;
-
-        commitData.changes = [];
-        let cmdData = "CMD=" + cmdStr;
-        commitData.changes.push(cmdData);
-
-        let onbuildsArr = [];
-        if (commitMsg.setonbuild) {
-            onbuildsArr = utils.getCommitArr(commitMsg.onbuild, "ONBUILD");
-        }
-        commitData.changes.push(...onbuildsArr);
-        console.log(commitData);
-        // execute the API Commit method
-        utils.varlinkCall(utils.PODMAN, "io.podman.Commit", commitData)
-                .then(reply => {
-                    this.props.updateImagesAfterEvent();
-                    this.props.updateContainersAfterEvent();
-                })
-                .catch(ex => {
-                    console.error("Failed to do Commit call:", ex, JSON.stringify(ex));
-                    document.body.classList.remove('busy-cursor');
-                });
-        this.setState((prevState) => ({
-            setContainerCommitModal: !prevState.setContainerCommitModal
-        }));
     }
 
     handleContainerCommit_temp(commitMsg) {
