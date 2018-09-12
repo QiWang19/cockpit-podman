@@ -235,3 +235,15 @@ export function updateImages() {
                 });
     });
 }
+
+export function getCommitArr(arr, cmd) {
+    let ret = [];
+    if (cmd === "ONBUILD") {
+        for (let i = 0; i < arr.length; i++) {
+            let temp = "ONBUILD=" + arr[i];
+            ret.push(temp);
+        }
+    }
+    console.log(ret);
+    return ret;
+}
