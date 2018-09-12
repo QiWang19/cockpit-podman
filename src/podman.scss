@@ -256,7 +256,7 @@ div.spinner {
 }
 
 .containers-run-volumemount input {
-    max-width: 8em;
+    max-width: 6em;
 }
 
 .containers-run-volumemount button {
@@ -264,6 +264,10 @@ div.spinner {
 }
 
 .containers-run-envvarclaim input {
+    max-width: 8em;
+}
+
+.containers-run-labvarclaim input {
     max-width: 8em;
 }
 
@@ -643,4 +647,8 @@ body.busy-cursor {
 
 .form-control-half {
     width: 80px;
+}
+
+.form-control-run {
+    width: 420px;
 }
