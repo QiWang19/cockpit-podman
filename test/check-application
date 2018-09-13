@@ -52,6 +52,17 @@ class TestApplication(testlib.MachineCase):
         b.wait_present('#containers-containers tr:contains("busybox:latest") td:contains("running")')
         b.wait_present('#containers-containers tr:contains("alpine:latest") td:contains("exited")')
 
+        # b.wait_present("#containers-filter")
+        # b.set_val("#containers-filter","alpine")
+        # self.pageReload()
+        # b.wait_present("#containers-containers")
+        # b.wait_not_in_text("#containers-containers", "busybox:latest")
+        # b.set_val("#containers-filter","")
+        # self.pageReload()
+        # self.loadAllContainerlist()
+        # b.wait_present("#containers-containers")
+        # b.wait_present('#containers-containers tr:contains("busybox:latest")')
+
         # show container listing toggle
         b.click('#containers-containers tbody tr:contains("busybox:latest") td.listing-ct-toggle')
         b.wait_present('#containers-containers tbody tr:contains("busybox:latest") + tr button.btn-delete')
