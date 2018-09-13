@@ -6,7 +6,7 @@ class ContainerCommitModal extends React.Component {
         super(props);
         this.initialState = {
             imageName: "",
-            repository: "",
+            // repository: "",
             tag: "",
             author:"",
             message: "",
@@ -114,12 +114,12 @@ class ContainerCommitModal extends React.Component {
                                 </label>
                             </td>
                         </tr>
-                        <tr>
+                        {/* <tr>
                             <td><label className="control-label" translatable="yes">Repository</label></td>
                             <td colSpan="3">
                                 <input name="repository" className="form-control-commit container-repository" type="text" onChange={this.handleInputChange} />
                             </td>
-                        </tr>
+                        </tr> */}
                         <tr>
                             <td><label className="control-label" translatable="yes">Image Name</label></td>
                             <td colSpan="3">

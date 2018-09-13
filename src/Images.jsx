@@ -6,6 +6,7 @@ import ContainersRunImageModal from './ContainersRunImageModal.jsx';
 import ImageSecurity from './ImageSecurity.jsx';
 import ModalExample from './ImageDeleteModal.jsx';
 import ImageRemoveErrorModal from './ImageRemoveErrorModal.jsx';
+import ImageSearchModal from './ImageSearchModal.jsx';
 import * as utils from './util.js';
 
 const moment = require('moment');
@@ -22,6 +23,10 @@ class Images extends React.Component {
             selectImageDeleteModal: false,
             setImageRemoveErrorModal: false,
             imageWillDelete: {},
+            setImageSearchModal: false,
+            searchImageRes:[],
+            setSearchImageSpinner: false,
+            searchFinished: false
         };
 
         this.vulnerableInfoChanged = this.vulnerableInfoChanged.bind(this);
@@ -33,6 +38,9 @@ class Images extends React.Component {
         this.handleRemoveImage = this.handleRemoveImage.bind(this);
         this.handleCancelImageRemoveError = this.handleCancelImageRemoveError.bind(this);
         this.handleForceRemoveImage = this.handleForceRemoveImage.bind(this);
+        this.doSearchImage = this.doSearchImage.bind(this);
+        this.handleCancelSearchImage = this.handleCancelSearchImage.bind(this);
+        this.handleDownloadImage = this.handleDownloadImage.bind(this);
     }
 
     vulnerableInfoChanged(event, infos) {
@@ -174,8 +182,26 @@ class Images extends React.Component {
         />;
     }
 
+    // TODO
     handleSearchImageClick() {
-        return undefined;
+        this.setState((prevState) => ({
+            setImageSearchModal: !prevState.setImageSearchModal
+        }));
+    }
+
+    // TODO
+    doSearchImage(message) {
+
+    }
+
+    // TODO
+    handleCancelSearchImage() {
+
+    }
+
+    // TODO
+    handleDownloadImage(imageName) {
+
     }
 
     handleCancelRunImage() {
@@ -218,6 +244,17 @@ class Images extends React.Component {
                     imageRemoveErrorMsg={this.imageRemoveErrorMsg}
             />;
 
+        const imageSearchModal =
+            <ImageSearchModal
+                setImageSearchModal={this.state.setImageSearchModal}
+                doSearchImage={this.doSearchImage}
+                searchImageRes={this.state.searchImageRes}
+                setSearchImageSpinner={this.state.setSearchImageSpinner}
+                searchFinished={this.state.searchFinished}
+                handleCancelSearchImage={this.handleCancelSearchImage}
+                handleDownloadImage={this.handleDownloadImage}
+            />;
+
         return (
             <div id="containers-images" key={"images"} className="container-fluid" >
                 <div key={"imageslist"}>
@@ -237,6 +274,7 @@ class Images extends React.Component {
                 />
                 {imageDeleteModal}
                 {imageRemoveErrorModal}
+                {imageSearchModal}
             </div>
         );
     }
