@@ -267,6 +267,10 @@ div.spinner {
     max-width: 8em;
 }
 
+.containers-run-onbuildvarclaim input {
+    max-width: 15em;
+}
+
 #select-linked-containers .form-group {
     width: 80%;
 }
@@ -641,6 +645,3 @@ body.busy-cursor {
     width: 173px;
 }
 
-.form-control-half {
-    width: 80px;
-}

@@ -80,16 +80,16 @@ class ContainerCommitModal extends React.Component {
     render() {
         let onbuilds =
             this.state.onbuild.map((bud, idx) => (
-                <div key={"onbuildvar" + idx} className="form-inline form-group">
-                    <div className="form-group">
-                        <input type="text" name="onbuildvar_key" className="form-control-commit"
-                            onChange={(evt) => this.handleOnbuildsInputChange(idx, evt)}
-                        />
-                    </div>
-                    <button type="button" onClick={() => this.handleRemoveOnbuild(idx)} className="small" disabled={idx === 0}>-</button>
+                <div key={"onbuildvar" + idx} id="select-claimed-onbuildvars" className="containers-run-onbuildvarclaim containers-run-inline" >
+                    <form className="form-inline">
+                        <button type="button" className="btn btn-default fa fa-plus" onClick={this.handleAddOnbuild} />
+                        <button type="button" className="btn btn-default pficon-close" onClick={() => this.handleRemoveOnbuild(idx)} />
+                        <div className="form-group">
+                            <input type="text" name="onbuildvar_key" className="form-control" onChange={(evt) => this.handleOnbuildsInputChange(idx, evt)} />
+                        </div>
+                    </form>
                 </div>
             ));
-        let addOnbuildBtn = <p align="right"><button type="button" onClick={this.handleAddOnbuild} className="small">Add Onbuild</button></p>;
 
         let commitContent =
             <div>
@@ -167,7 +167,7 @@ class ContainerCommitModal extends React.Component {
                                     <input name="setonbuild" className="container-label" type="checkbox" disabled={this.state.onbuildDisabled} onChange={this.handleInputChange} />
                                     <span>Set container onbuild variables</span>
                                 </label>
-                                {(this.state.setonbuild && <div>{onbuilds}{addOnbuildBtn}</div>) }
+                                {(this.state.setonbuild && <div>{onbuilds}</div>) }
                             </td>
                         </tr>
                     </tbody>
@@ -177,7 +177,6 @@ class ContainerCommitModal extends React.Component {
         return (
             <Modal
                 show={this.props.setContainerCommitModal}
-                bsSize="large"
                 aria-labelledby="contained-modal-title-lg"
             >
                 <Modal.Header>
