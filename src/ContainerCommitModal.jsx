@@ -6,7 +6,7 @@ class ContainerCommitModal extends React.Component {
         super(props);
         this.initialState = {
             imageName: "",
-            repository: "",
+            // repository: "",
             tag: "",
             author:"",
             message: "",
@@ -96,13 +96,13 @@ class ContainerCommitModal extends React.Component {
                 <table className="form-table-ct">
                     <tbody>
                         <tr>
-                            <td><label className="control-label" translatable="yes">Container Name</label></td>
+                            <td align="right"><label className="control-label" translatable="yes">Container Name</label></td>
                             <td colSpan="3">
                                 <span className="container-name" />{this.props.containerWillCommit.Name}
                             </td>
                         </tr>
                         <tr>
-                            <td><label className="control-label" translatable="yes">Format</label></td>
+                            <td align="right"><label className="control-label" translatable="yes">Format</label></td>
                             <td colSpan="3">
                                 <label htmlFor="format-oci">
                                     <input type="radio" id="format-oci" value="oci" checked={this.state.selectedFormat === 'oci'} onChange={(event) => this.handleFormatChange(event)} />
@@ -114,44 +114,44 @@ class ContainerCommitModal extends React.Component {
                                 </label>
                             </td>
                         </tr>
-                        <tr>
+                        {/* <tr>
                             <td><label className="control-label" translatable="yes">Repository</label></td>
                             <td colSpan="3">
                                 <input name="repository" className="form-control-commit container-repository" type="text" onChange={this.handleInputChange} />
                             </td>
-                        </tr>
+                        </tr> */}
                         <tr>
-                            <td><label className="control-label" translatable="yes">Image Name</label></td>
+                            <td align="right"><label className="control-label" translatable="yes">Image Name</label></td>
                             <td colSpan="3">
                                 <input name="imageName" className="form-control-commit container-imageName" type="text" onChange={this.handleInputChange} required="true" />
                             </td>
                         </tr>
                         <tr>
-                            <td><label className="control-label" translatable="yes">Tag</label></td>
+                            <td align="right"><label className="control-label" translatable="yes">Tag</label></td>
                             <td colSpan="3">
                                 <input name="tag" className="form-control-commit container-tag" type="text" onChange={this.handleInputChange} required="true" />
                             </td>
                         </tr>
                         <tr>
-                            <td><label className="control-label" translatable="yes">Author</label></td>
+                            <td align="right"><label className="control-label" translatable="yes">Author</label></td>
                             <td colSpan="3">
                                 <input name="author" className="form-control-commit container-author" type="text" onChange={this.handleInputChange} />
                             </td>
                         </tr>
                         <tr>
-                            <td><label className="control-label" translatable="yes">Message</label></td>
+                            <td align="right"><label className="control-label" translatable="yes">Message</label></td>
                             <td colSpan="3">
                                 <input name="message" className="form-control-commit container-message" type="text" onChange={this.handleInputChange} />
                             </td>
                         </tr>
                         <tr>
-                            <td><label className="control-label" translatable="yes">Command</label></td>
+                            <td align="right"><label className="control-label" translatable="yes">Command</label></td>
                             <td colSpan="3">
                                 <input name="command" className="form-control-commit container-command" type="text" defaultValue={this.props.containerWillCommit.Config ? this.props.containerWillCommit.Config.Cmd.join(" ") : ""} onChange={this.handleInputChange} />
                             </td>
                         </tr>
                         <tr>
-                            <td><label className="control-label" translatable="yes">Pause</label></td>
+                            <td align="right"><label className="control-label" translatable="yes">Pause</label></td>
                             <td colSpan="3">
                                 <label>
                                     <input name="pause" className="container-pause" type="checkbox" defaultChecked onChange={this.handleInputChange} />
@@ -161,7 +161,7 @@ class ContainerCommitModal extends React.Component {
                             </td>
                         </tr>
                         <tr>
-                            <td valign="top"><label className="control-label" translatable="yes">Onbuild</label></td>
+                            <td valign="top" align="right"><label className="control-label" translatable="yes">Onbuild</label></td>
                             <td colSpan="3">
                                 <label>
                                     <input name="setonbuild" className="container-label" type="checkbox" disabled={this.state.onbuildDisabled} onChange={this.handleInputChange} />
