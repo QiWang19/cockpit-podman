@@ -148,7 +148,7 @@ class Containers extends React.Component {
 
     renderRow(containersStats, container) {
         const isRunning = !!container.State.Running;
-        const containerStats = isRunning ? containersStats[container.ID] : undefined;
+        const containerStats = isRunning && containersStats ? containersStats[container.ID] : undefined;
         const image = container.ImageName;
         const state = container.State.Status;
 
@@ -276,7 +276,6 @@ class Containers extends React.Component {
         let rows = Object.keys(filtered).map(function (id) {
             return this.renderRow(containersStats, this.props.containers[id]);
         }, this);
-        console.log(rows);
         const containerDeleteModal =
             <ContainerDeleteModal
                 selectContainerDeleteModal={this.state.selectContainerDeleteModal}

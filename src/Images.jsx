@@ -22,6 +22,7 @@ class Images extends React.Component {
             selectImageDeleteModal: false,
             setImageRemoveErrorModal: false,
             imageWillDelete: {},
+            imageWillRun: {}
         };
 
         this.vulnerableInfoChanged = this.vulnerableInfoChanged.bind(this);
@@ -33,6 +34,7 @@ class Images extends React.Component {
         this.handleRemoveImage = this.handleRemoveImage.bind(this);
         this.handleCancelImageRemoveError = this.handleCancelImageRemoveError.bind(this);
         this.handleForceRemoveImage = this.handleForceRemoveImage.bind(this);
+        this.handleRunImage = this.handleRunImage.bind(this);
     }
 
     vulnerableInfoChanged(event, infos) {
@@ -53,9 +55,10 @@ class Images extends React.Component {
         }
     }
 
-    showRunImageDialog(e) {
+    showRunImageDialog(e, image) {
         this.setState({
-            setRunContainer: true
+            setRunContainer: true,
+            imageWillRun: image
         });
     }
 
@@ -127,7 +130,7 @@ class Images extends React.Component {
             <button
                 key={image ? image.Id + "runimage" : "runimage"}
                 className="btn btn-default btn-control-ct fa fa-play"
-                onClick={ this.showRunImageDialog }
+                onClick={ (event) => this.showRunImageDialog(event, image) }
                 data-image={image ? image.Id : ""}
             />;
         let columns = [
@@ -174,6 +177,7 @@ class Images extends React.Component {
         />;
     }
 
+    // TODO
     handleSearchImageClick() {
         return undefined;
     }
@@ -188,6 +192,94 @@ class Images extends React.Component {
         this.setState({
             setImageRemoveErrorModal: false
         });
+    }
+
+    // TODO
+    handleRunImage(runImgData) {
+        console.log(runImgData);
+
+        let imgName = null;
+        if (this.state.imageWillRun && this.state.imageWillRun.RepoTags) {
+            let start = this.state.imageWillRun.RepoTags[0].lastIndexOf("/") + 1;
+            let end = this.state.imageWillRun.RepoTags[0].length;
+            imgName = this.state.imageWillRun.RepoTags[0].substring(start, end);
+        }
+        console.log(imgName);
+        console.log(runImgData.ports);
+
+        let image_id = this.state.imageWillRun.Id;
+
+        let user = this.state.imageWillRun.User;
+        if (runImgData.user !== '') {
+            user = runImgData.user;
+        }
+
+        let command = null;
+        if (this.state.imageWillRun.ContainerConfig && this.state.imageWillRun.ContainerConfig.Cmd) {
+            command = this.state.imageWillRun.ContainerConfig.Cmd;
+        }
+        if (runImgData.command !== '') {
+            command = runImgData.command.split(" ");
+        }
+
+        let stop_signal = Number(runImgData.stopSignal);
+
+        let work_dir = this.state.imageWillRun.GraphDriver ? this.state.imageWillRun.GraphDriver.Data.WorkDir : null;
+        if (runImgData.workdir !== '') {
+            work_dir = runImgData.workdir;
+        }
+
+        let exposed_ports = utils.getRunImgMsg(runImgData.ports, "exposed_ports");
+
+        let volumes = utils.getRunImgMsg(runImgData.volumes, "volumes");
+
+        let labels = utils.getRunImgMsg(runImgData.labs, "labels");
+
+        let env = utils.getRunImgMsg(runImgData.envs, "env");
+
+        let imageToRun = {};
+        imageToRun.create = {};
+        imageToRun.create.image = imgName;
+        imageToRun.create.image_id = image_id;
+        imageToRun.create.user = user;
+        imageToRun.create.command = command;
+        imageToRun.create.stop_signal = stop_signal;
+        imageToRun.create.work_dir = work_dir;
+        if (runImgData.exposed_ports) {
+            imageToRun.create.exposed_ports = exposed_ports;
+        }
+
+        if (runImgData.mount_volumes) {
+            imageToRun.create.volumes = volumes;
+        }
+
+        if (runImgData.claim_labels) {
+            imageToRun.create.labels = labels;
+        }
+
+        if (runImgData.claim_envvars) {
+            imageToRun.create.env = env;
+        }
+        console.log(imageToRun);
+
+        utils.varlinkCall(utils.PODMAN, "io.podman.CreateContainer", imageToRun)
+                .then(reply => {
+                    console.log(reply.container);
+                    utils.varlinkCall(utils.PODMAN, "io.podman.StartContainer", {name: reply.container})
+                            .then(reply => {
+                                this.props.updateContainersAfterEvent();
+                            })
+                            .catch(ex => {
+                                console.error("Failed to do StartContainer call:", JSON.stringify(ex));
+                            });
+                })
+                .catch(ex => {
+                    console.error("Failed to do CreateContainer call:", JSON.stringify(ex));
+                });
+
+        this.setState(() => ({
+            setRunContainer: false
+        }));
     }
 
     render() {
@@ -233,7 +325,9 @@ class Images extends React.Component {
                 </div>
                 <ContainersRunImageModal
                             show={this.state.setRunContainer}
+                            imageWillRun={this.state.imageWillRun}
                             handleCancelRunImage={this.handleCancelRunImage}
+                            handleRunImage={this.handleRunImage}
                 />
                 {imageDeleteModal}
                 {imageRemoveErrorModal}

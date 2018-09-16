@@ -4,18 +4,20 @@ import {Modal, Button} from 'react-bootstrap';
 class ContainersRunImageModal extends React.Component {
     constructor(props) {
         super(props);
-        this.handleRunImage = this.handleRunImage.bind(this);
+        this.handleClickRunImage = this.handleClickRunImage.bind(this);
         this.initialState = {
             expose_ports: false,
             mount_volumes: false,
             claim_labels: false,
             claim_envvars: false,
+            user: '',
+            command: '',
             workdir: '',
+            stopSignal: '',
             ports: [{container: '', host: ''}],
-            vols: [{container: '', host: '', opt: ''}],
+            volumes: [{container: '', host: '', opt: ''}],
             envs: [{envvar_key: '', envvar_value: ''}],
             labs: [{labvar_key: '', labvar_value: ''}],
-
         };
         this.state = this.initialState;
         this.handleCancel = this.handleCancel.bind(this);
@@ -35,8 +37,10 @@ class ContainersRunImageModal extends React.Component {
     }
 
     // TODO
-    handleRunImage() {
-        return undefined;
+    handleClickRunImage() {
+        const runImgData = {...this.state};
+        this.props.handleRunImage(runImgData);
+        this.setState(this.initialState);
     }
 
     handleCancel() {
@@ -53,8 +57,15 @@ class ContainersRunImageModal extends React.Component {
         });
     }
 
-    // TODO
     handlePosInputChange(idx, evt) {
+        const newPorts = this.state.ports.map((port, sidx) => {
+            if (idx !== sidx) return port;
+            console.log(evt.target.value);
+            console.log(port);
+            port[evt.target.name] = evt.target.value;
+            return port;
+        });
+        this.setState({ports: newPorts});
     }
 
     handleAddPo() {
@@ -65,20 +76,36 @@ class ContainersRunImageModal extends React.Component {
         this.setState({ports: this.state.ports.filter((po, sidx) => idx !== sidx)});
     }
 
-    // TODO
     handleVolsInputChange(idx, evt) {
+        const newVolumes = this.state.volumes.map((volume, sidx) => {
+            if (idx !== sidx) return volume;
+            console.log(volume);
+            console.log(evt.target.value);
+            volume[evt.target.name] = evt.target.value;
+            return volume;
+        });
+
+        this.setState({volumes: newVolumes});
     }
 
     handleAddVol() {
-        this.setState({vols: this.state.vols.concat([{container: '', host: '', opt: ''}])});
+        this.setState({volumes: this.state.volumes.concat([{container: '', host: '', opt: ''}])});
     }
 
     handleRemoveVol(idx) {
-        this.setState({vols: this.state.vols.filter((vol, sidx) => idx !== sidx)});
+        this.setState({volumes: this.state.volumes.filter((vol, sidx) => idx !== sidx)});
     }
 
-    // TODO
     handleLabsInputChange(idx, evt) {
+        const newLabs = this.state.labs.map((lab, sidx) => {
+            if (idx !== sidx) return lab;
+            console.log(lab);
+            console.log(evt.target.value);
+            lab[evt.target.name] = evt.target.value;
+            return lab;
+        });
+
+        this.setState({labs: newLabs});
     }
 
     handleAddLab() {
@@ -89,8 +116,16 @@ class ContainersRunImageModal extends React.Component {
         this.setState({labs: this.state.labs.filter((lab, sidx) => idx !== sidx)});
     }
 
-    // TODO
     handleEnvsInputChange(idx, evt) {
+        const newEnvs = this.state.envs.map((env, sidx) => {
+            if (idx !== sidx) return env;
+            console.log(env);
+            console.log(evt.target.value);
+            env[evt.target.name] = evt.target.value;
+            return env;
+        });
+
+        this.setState({ envs: newEnvs });
     }
 
     handleAddEnv() {
@@ -108,31 +143,31 @@ class ContainersRunImageModal extends React.Component {
                     <button type="button" className="btn btn-default fa fa-plus" onClick={this.handleAddPo} />
                     <button type="button" className="btn btn-default pficon-close" disabled={idx === 0} onClick={() => this.handleRemovePo(idx)} />
                     <div className="form-group">
-                        <input type="text" name="container" className="form-control" onClick={(evt) => this.handlePosInputChange(idx, evt)} />
+                        <input type="text" name="container" className="form-control" onChange={(evt) => this.handlePosInputChange(idx, evt)} />
                     </div>
                     <div className="form-group">
                         <label>to host port </label>
-                        <input type="text" name="host" className="form-control" onClick={(evt) => this.handlePosInputChange(idx, evt)} />
+                        <input type="text" name="host" className="form-control" onChange={(evt) => this.handlePosInputChange(idx, evt)} />
                     </div>
                 </form>
             </div>
         ));
 
-        let volumes = this.state.vols.map((vol, idx) => (
+        let volumes = this.state.volumes.map((vol, idx) => (
             <div key={"volvar" + idx} id="select-mounted-volumes" className="containers-run-volumemount containers-run-inline">
                 <form className="form-inline">
                     <button type="button" className="btn btn-default fa fa-plus" onClick={this.handleAddVol} />
                     <button type="button" className="btn btn-default pficon-close" disabled={idx === 0} onClick={() => this.handleRemoveVol(idx)} />
                     <div className="form-group">
-                        <input type="text" name="container" className="form-control" onClick={(evt) => this.handleVolsInputChange(idx, evt)} />
+                        <input type="text" name="container" className="form-control" onChange={(evt) => this.handleVolsInputChange(idx, evt)} />
                     </div>
                     <div className="form-group">
                         <label>to host path</label>
-                        <input type="text" name="host" className="form-control" onClick={(evt) => this.handleVolsInputChange(idx, evt)} />
+                        <input type="text" name="host" className="form-control" onChange={(evt) => this.handleVolsInputChange(idx, evt)} />
                     </div>
                     <div className="form-group">
                         <label>options</label>
-                        <input type="text" name="opt" className="form-control" onClick={(evt) => this.handleVolsInputChange(idx, evt)} />
+                        <input type="text" name="opt" className="form-control" onChange={(evt) => this.handleVolsInputChange(idx, evt)} />
                     </div>
                 </form>
             </div>
@@ -172,47 +207,62 @@ class ContainersRunImageModal extends React.Component {
             </div>
         ));
 
+        let imgName = null;
+        if (this.props.imageWillRun.RepoTags) {
+            let start = this.props.imageWillRun.RepoTags[0].lastIndexOf("/") + 1;
+            let end = this.props.imageWillRun.RepoTags[0].length;
+            imgName = this.props.imageWillRun.RepoTags[0].substring(start, end);
+        }
+        // console.log(this.props.imageWillRun.User);
+
+        let defaultUser = this.props.imageWillRun.User;
+        let defaultWorkDir = this.props.imageWillRun.GraphDriver ? this.props.imageWillRun.GraphDriver.Data.WorkDir : null;
+        let defaultCmd = null;
+        if (this.props.imageWillRun.ContainerConfig && this.props.imageWillRun.ContainerConfig.Cmd) {
+            defaultCmd = this.props.imageWillRun.ContainerConfig.Cmd.join(" ");
+        }
+
         let runImageTable =
             <div className="modal-body">
                 <table className="form-table-ct">
                     <tbody>
                         <tr>
-                            <td><label className="control-label"
+                            <td align="right"><label className="control-label"
                                     translatable="yes">Image</label></td>
                             <td colSpan="4">
-                                <span id="containers-run-image" />
+                                <span id="containers-run-image" />{imgName}
                             </td>
                         </tr>
                         <tr>
-                            <td><label className="control-label" htmlFor="containers-run-image-user"
+                            <td align="right"><label className="control-label" htmlFor="containers-run-image-user"
                                         translatable="yes">User</label></td>
                             <td colSpan="4">
-                                <input name="user" className="form-control-run" type="text" id="containers-run-image-user" onChange={this.handleInputChange} />
+                                <input name="user" className="form-control-run" type="text" id="containers-run-image-user" defaultValue={defaultUser} onChange={this.handleInputChange} />
                             </td>
                         </tr>
                         <tr>
-                            <td><label className="control-label" htmlFor="containers-run-image-command"
+                            <td align="right"><label className="control-label" htmlFor="containers-run-image-command"
                                 translatable="yes">Command</label></td>
                             <td colSpan="4">
-                                <input name="command" className="form-control-run" type="text" id="containers-run-image-command" onChange={this.handleInputChange} />
+                                <input name="command" className="form-control-run" type="text" id="containers-run-image-command" defaultValue={defaultCmd} onChange={this.handleInputChange} />
                             </td>
                         </tr>
                         <tr>
-                            <td><label className="control-label" htmlFor="containers-run-image-signal"
+                            <td align="right"><label className="control-label" htmlFor="containers-run-image-signal"
                                         translatable="yes">Stop signal</label></td>
                             <td colSpan="4">
-                                <input name="stopsignal" className="form-control-run" type="text" id="containers-run-image-signal" onChange={this.handleInputChange} />
+                                <input name="stopSignal" className="form-control-run" type="text" id="containers-run-image-signal" onChange={this.handleInputChange} />
                             </td>
                         </tr>
                         <tr>
-                            <td><label className="control-label" htmlFor="containers-run-image-workdir"
+                            <td align="right"><label className="control-label" htmlFor="containers-run-image-workdir"
                                         translatable="yes">Work directory</label></td>
                             <td colSpan="4">
-                                <input name="workdir" className="form-control-run" type="text" id="containers-run-image-workdir" onChange={this.handleInputChange} />
+                                <input name="workdir" className="form-control-run" type="text" id="containers-run-image-workdir" defaultValue={defaultWorkDir} onChange={this.handleInputChange} />
                             </td>
                         </tr>
                         <tr>
-                            <td valign="top"><label className="control-label" htmlFor="expose-ports" translatable="yes">Ports</label></td>
+                            <td valign="top" align="right"><label className="control-label" htmlFor="expose-ports" translatable="yes">Ports</label></td>
                             <td colSpan="4">
                                 <label>
                                     <input type="checkbox" name="expose_ports" id="expose-ports" onChange={this.handleInputChange} />
@@ -222,7 +272,7 @@ class ContainersRunImageModal extends React.Component {
                             </td>
                         </tr>
                         <tr>
-                            <td valign="top"><label className="control-label" htmlFor="mount-volumes" translatable="yes">Volumes</label></td>
+                            <td valign="top" align="right"><label className="control-label" htmlFor="mount-volumes" translatable="yes">Volumes</label></td>
                             <td colSpan="4">
                                 <label>
                                     <input type="checkbox" name="mount_volumes" id="mount-volumes" onChange={this.handleInputChange} />
@@ -232,7 +282,7 @@ class ContainersRunImageModal extends React.Component {
                             </td>
                         </tr>
                         <tr>
-                            <td valign="top"><label className="control-label" htmlFor="claim-labels" translatable="yes">Labels</label></td>
+                            <td valign="top" align="right"><label className="control-label" htmlFor="claim-labels" translatable="yes">Labels</label></td>
                             <td colSpan="4">
                                 <label>
                                     <input type="checkbox" name="claim_labels" id="claim-labels" onChange={this.handleInputChange} />
@@ -242,7 +292,7 @@ class ContainersRunImageModal extends React.Component {
                             </td>
                         </tr>
                         <tr>
-                            <td valign="top"><label className="control-label" htmlFor="claim-envvars" translatable="yes">Environment</label></td>
+                            <td valign="top" align="right"><label className="control-label" htmlFor="claim-envvars" translatable="yes">Environment</label></td>
                             <td colSpan="4">
                                 <label>
                                     <input type="checkbox" name="claim_envvars" id="claim-envvars" onChange={this.handleInputChange} />
@@ -268,7 +318,7 @@ class ContainersRunImageModal extends React.Component {
                 </Modal.Body>
                 <Modal.Footer>
                     <Button onClick={this.handleCancel}>Cancel</Button>
-                    <Button bsStyle="primary" onClick={this.handleRunImage}>Run</Button>
+                    <Button bsStyle="primary" onClick={this.handleClickRunImage}>Run</Button>
                 </Modal.Footer>
             </Modal>
         );

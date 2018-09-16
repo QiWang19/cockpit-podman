@@ -177,7 +177,7 @@ export function updateContainers() {
                             .then((containerStatsRet) => {
                                 containerStatsRet.map((containerStatsRet) => {
                                     newContainersStats[containerStatsRet.ctrId] = containerStatsRet.ctrStats;
-                                    if (newContainers.length === containerCount && Object.keys(newContainersStats).length === runCtrArr.length) {
+                                    if (Object.keys(newContainers).length === containerCount && Object.keys(newContainersStats).length === runCtrArr.length) {
                                         resolve({newContainers: newContainers, newContainersStats: newContainersStats});
                                     }
                                 });
@@ -246,4 +246,39 @@ export function getCommitArr(arr, cmd) {
     }
     console.log(ret);
     return ret;
+}
+
+export function getRunImgMsg(arr, cmd) {
+    // let ret = {};
+    if (cmd === "exposed_ports") {
+        let ret = [];
+        for (let i = 0; i < arr.length; i++) {
+            ret.push(arr[i].container + ":" + arr[i].host);
+        }
+        console.log(ret);
+        return ret;
+    }
+    if (cmd === "volumes") {
+        let ret = [];
+        for (let i = 0; i < arr.length; i++) {
+            ret.push(arr[i].container + ":" + arr[i].host + ":" + arr[i].opt);
+        }
+        return ret;
+    }
+    if (cmd === "labels") {
+        let ret = {};
+        for (let i = 0; i < arr.length; i++) {
+            ret[arr[i].labvar_key] = arr[i].labvar_value;
+        }
+        console.log(ret);
+        return ret;
+    }
+    if (cmd === "env") {
+        let ret = {};
+        for (let i = 0; i < arr.length; i++) {
+            ret[arr[i].envvar_key] = arr[i].envvar_value;
+        }
+        console.log(ret);
+        return ret;
+    }
 }
