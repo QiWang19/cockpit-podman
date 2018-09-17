@@ -119,16 +119,17 @@ export function container_stop(container, timeout) {
 export function updateContainers() {
     let newContainers = [];
     let newContainersStats = [];
+    let newContainersMeta = [];
+    let inspectRet = [];
     return new Promise((resolve, reject) => {
         varlinkCall(PODMAN, "io.podman.ListContainers")
                 .then(reply => {
-                    let newContainersMeta = reply.containers;
+                    newContainersMeta = reply.containers;
                     if (!newContainersMeta) {
+                        console.log(newContainersMeta);
                         resolve({newContainers: newContainers, newContainersStats: newContainersStats});
-                        return;
+                        reject(new Error("No containrs"));
                     }
-                    const containerCount = newContainersMeta.length;
-                    let inspectRet = [];
                     newContainersMeta.map((container) => {
                         let proEle = new Promise((resolve, reject) => {
                             varlinkCall(PODMAN, "io.podman.InspectContainer", {name: container.id})
@@ -141,6 +142,9 @@ export function updateContainers() {
                         });
                         inspectRet.push(proEle);
                     });
+                })
+                .then(function() {
+                    const containerCount = newContainersMeta.length;
                     Promise.all(inspectRet)
                             .then((inspectRet) => {
                                 let runEle = newContainersMeta.filter((ele) => {
@@ -156,6 +160,9 @@ export function updateContainers() {
                             .catch(ex => {
                                 console.error("Failed to do InspectContainer call:", ex, JSON.stringify(ex));
                             });
+                })
+
+                .then(function() {
                     let containerStatsRet = [];
                     let runCtrArr = newContainersMeta.filter((ele) => {
                         return ele.status === "running";
@@ -177,7 +184,7 @@ export function updateContainers() {
                             .then((containerStatsRet) => {
                                 containerStatsRet.map((containerStatsRet) => {
                                     newContainersStats[containerStatsRet.ctrId] = containerStatsRet.ctrStats;
-                                    if (Object.keys(newContainers).length === containerCount && Object.keys(newContainersStats).length === runCtrArr.length) {
+                                    if (Object.keys(newContainersStats).length === runCtrArr.length) {
                                         resolve({newContainers: newContainers, newContainersStats: newContainersStats});
                                     }
                                 });
@@ -249,13 +256,11 @@ export function getCommitArr(arr, cmd) {
 }
 
 export function getRunImgMsg(arr, cmd) {
-    // let ret = {};
     if (cmd === "exposed_ports") {
         let ret = [];
         for (let i = 0; i < arr.length; i++) {
             ret.push(arr[i].container + ":" + arr[i].host);
         }
-        console.log(ret);
         return ret;
     }
     if (cmd === "volumes") {
@@ -270,7 +275,6 @@ export function getRunImgMsg(arr, cmd) {
         for (let i = 0; i < arr.length; i++) {
             ret[arr[i].labvar_key] = arr[i].labvar_value;
         }
-        console.log(ret);
         return ret;
     }
     if (cmd === "env") {
@@ -278,7 +282,6 @@ export function getRunImgMsg(arr, cmd) {
         for (let i = 0; i < arr.length; i++) {
             ret[arr[i].envvar_key] = arr[i].envvar_value;
         }
-        console.log(ret);
         return ret;
     }
 }
