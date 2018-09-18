@@ -666,3 +666,15 @@ body.busy-cursor {
 .form-control-run {
     width: 420px;
 }
+
+.nav-label {
+    text-align: right;
+}
+
+td[id^="container-details-"] {
+    padding-left: 0.75em;
+}
+
+div[id^="container-details-"] {
+    padding-left: 0.75em;
+}
