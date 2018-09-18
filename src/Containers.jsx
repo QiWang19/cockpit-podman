@@ -8,6 +8,10 @@ import ContainerRemoveErrorModal from './ContainerRemoveErrorModal.jsx';
 import * as utils from './util.js';
 import ContainerCommitModal from './ContainerCommitModal.jsx';
 
+import {BrowserRouter, Route, Switch, Link, NavLink} from 'react-router-dom';
+import HelpPage from './HelpPage.jsx';
+import ReactDOM from 'react-dom';
+
 const _ = cockpit.gettext;
 
 class Containers extends React.Component {
@@ -38,6 +42,8 @@ class Containers extends React.Component {
 
     navigateToContainer(container) {
         cockpit.location.go([container.ID]);
+        let helpComp = <HelpPage container={container} />;
+        ReactDOM.render(helpComp, document.getElementById('app'));
     }
 
     deleteContainer(container, event) {
