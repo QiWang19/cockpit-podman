@@ -36,6 +36,7 @@ class Application extends React.Component {
             containersStats:[], /* memory usage of running containers */
             onlyShowRunning: true,
             dropDownValue: 'Everything',
+            filterText: ''
         };
         this.onChange = this.onChange.bind(this);
         this.updateContainers = this.updateContainers.bind(this);
@@ -43,11 +44,18 @@ class Application extends React.Component {
         this.updateContainerStats = this.updateContainerStats.bind(this);
         this.updateContainersAfterEvent = this.updateContainersAfterEvent.bind(this);
         this.updateImagesAfterEvent = this.updateImagesAfterEvent.bind(this);
+        this.filterTextChange = this.filterTextChange.bind(this);
     }
 
     onChange(value) {
         this.setState({
             onlyShowRunning: value != "all"
+        });
+    }
+
+    filterTextChange(text) {
+        this.setState({
+            filterText: text
         });
     }
 
@@ -72,8 +80,12 @@ class Application extends React.Component {
     updateContainersAfterEvent() {
         utils.updateContainers()
                 .then((reply) => {
-                    this.updateContainers(reply.newContainers);
-                    this.updateContainerStats(reply.newContainerStats);
+                    // this.updateContainers(reply.newContainers);
+                    // this.updateContainerStats(reply.newContainerStats);
+                    this.setState({
+                        containers: reply.newContainers,
+                        containersStats: reply.newContainerStats,
+                    });
                     document.body.classList.remove('busy-cursor');
                 })
                 .catch(ex => {
@@ -176,14 +188,16 @@ class Application extends React.Component {
             key: _("imageList"),
             images: this.state.images,
             updateContainersAfterEvent: this.updateContainersAfterEvent,
-            updateImagesAfterEvent: this.updateImagesAfterEvent
+            updateImagesAfterEvent: this.updateImagesAfterEvent,
+            filterText: this.state.filterText
         };
         const ctrprops = {key:_("containerList"),
                           containers: this.state.containers,
                           containersStats: this.state.containersStats,
                           onlyShowRunning: this.state.onlyShowRunning,
                           updateContainersAfterEvent: this.updateContainersAfterEvent,
-                          updateImagesAfterEvent: this.updateImagesAfterEvent
+                          updateImagesAfterEvent: this.updateImagesAfterEvent,
+                          filterText: this.state.filterText
         };
         imageList =
             <Images
@@ -200,6 +214,7 @@ class Application extends React.Component {
                     <ContainerHeader
                         onlyShowRunning={this.state.onlyShowRunning}
                         onChange={this.onChange}
+                        filterTextChange={this.filterTextChange}
                     />
                 </div>
                 <div key={"containerslists"} className="container-fluid">
